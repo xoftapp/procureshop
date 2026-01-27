@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PROCURE SHOP</title>
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --primary-dark: #1e40af;
+      --light: #f8fafc;
+      --dark: #0f172a;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f1f5f9;
+      color: var(--dark);
+      line-height: 1.6;
+      padding-bottom: 80px;
+    }
+    
+    .header {
+      background-color: var(--primary);
+      color: white;
+      padding: 1.5rem 2rem;
+      text-align: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .logo {
+      font-size: 2rem;
+      font-weight: bold;
+    }
+    
+    .container {
+      max-width: 1000px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+    }
+    
+    .filter-section {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 10px;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    
+    .filter-section h3 {
+      margin-bottom: 1rem;
+      color: var(--primary-dark);
+    }
+    
+    select {
+      padding: 0.8rem;
+      border: 2px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 1rem;
+      width: 100%;
+      max-width: 300px;
+    }
+    
+    .articles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    .article-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      transition: transform 0.3s ease;
+      border-left: 4px solid var(--primary);
+    }
+    
+    .article-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+    }
+    
+    .article-category {
+      font-size: 0.85rem;
+      color: #64748b;
+      margin-bottom: 0.5rem;
+      font-weight: bold;
+    }
+    
+    .article-name {
+      font-weight: 600;
+      font-size: 1.2rem;
+      margin-bottom: 0.8rem;
+      color: var(--dark);
+    }
+    
+    .article-price {
+      color: var(--primary-dark);
+      font-weight: bold;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .add-to-cart {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.8rem;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+      font-size: 1rem;
+      transition: background-color 0.2s;
+    }
+    
+    .add-to-cart:hover {
+      background-color: var(--primary-dark);
+    }
+    
+    .cart-icon {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background-color: var(--primary);
+      color: white;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      z-index: 100;
+    }
+    
+    .cart-count {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background-color: #ef4444;
+      color: white;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: bold;
+    }
+    
+    .cart-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.7);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .cart-content {
+      background: white;
+      width: 90%;
+      max-width: 500px;
+      border-radius: 16px;
+      padding: 2rem;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+    
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .cart-item-info {
+      flex: 1;
+    }
+    
+    .cart-item-name {
+      font-weight: 600;
+    }
+    
+    .cart-item-price {
+      color: var(--primary-dark);
+      font-weight: bold;
+    }
+    
+    .quantity-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-left: 15px;
+    }
+    
+    .quantity-btn {
+      width: 30px;
+      height: 30px;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.2rem;
+    }
+    
+    .quantity-display {
+      min-width: 30px;
+      text-align: center;
+      font-weight: bold;
+    }
+    
+    .cart-total {
+      font-size: 1.6rem;
+      font-weight: bold;
+      color: var(--primary-dark);
+      margin: 1.5rem 0;
+      text-align: right;
+    }
+    
+    .checkout-btn {
+      background-color: #10b981;
+      color: white;
+      border: none;
+      padding: 1rem;
+      border-radius: 8px;
+      width: 100%;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+    
+    .checkout-btn:hover {
+      background-color: #0da271;
+    }
+    
+    .close-btn {
+      float: right;
+      background: none;
+      border: none;
+      font-size: 1.8rem;
+      cursor: pointer;
+      color: #64748b;
+    }
+    
+    .checkout-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.7);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .checkout-content {
+      background: white;
+      width: 90%;
+      max-width: 450px;
+      border-radius: 16px;
+      padding: 2.5rem;
+    }
+    
+    .checkout-content h2 {
+      color: var(--primary-dark);
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+    
+    input {
+      width: 100%;
+      padding: 1rem;
+      margin: 0.8rem 0;
+      border: 2px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    
+    input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 3rem;
+      font-size: 1.2rem;
+      color: #64748b;
+    }
+    
+    .no-articles {
+      text-align: center;
+      padding: 3rem;
+      color: #64748b;
+      font-size: 1.1rem;
+    }
+    
+    @media (max-width: 768px) {
+      .articles-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .header {
+        padding: 1.2rem;
+      }
+      
+      .logo {
+        font-size: 1.7rem;
+      }
+      
+      .cart-icon {
+        width: 55px;
+        height: 55px;
+        font-size: 1.4rem;
+      }
+      
+      .container {
+        padding: 0 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="logo">🛒 PROCURE SHOP</div>
+  </header>
+
+  <div class="container">
+    <div class="filter-section">
+      <h3>Filtrer par catégorie</h3>
+      <select id="category-filter" onchange="filterArticles()">
+        <option value="all">Toutes les catégories</option>
+      </select>
+    </div>
+
+    <div class="articles-grid" id="articles-container">
+      <div class="loading">Chargement des articles...</div>
+    </div>
+  </div>
+
+  <div class="cart-icon" onclick="openCart()">
+    🛒
+    <span class="cart-count" id="cart-count">0</span>
+  </div>
+
+  <div class="cart-modal" id="cart-modal">
+    <div class="cart-content">
+      <button class="close-btn" onclick="closeCart()">×</button>
+      <h2>Votre panier</h2>
+      <div id="cart-items"></div>
+      <div class="cart-total">Total: <span id="cart-total">0</span> FCFA</div>
+      <button class="checkout-btn" onclick="openCheckout()">Valider la commande</button>
+    </div>
+  </div>
+
+  <div class="checkout-modal" id="checkout-modal">
+    <div class="checkout-content">
+      <button class="close-btn" onclick="closeCheckout()">×</button>
+      <h2>Finaliser la commande</h2>
+      <input type="text" id="customer-name" placeholder="Votre nom complet *" required>
+      <input type="tel" id="customer-phone" placeholder="Votre numéro WhatsApp (ex: 221771234567) *" required>
+      <div class="cart-total">Total à payer: <span id="checkout-total">0</span> FCFA</div>
+      <button class="checkout-btn" onclick="sendOrder()">Confirmer la commande</button>
+    </div>
+  </div>
+
+  <script>
+    // 🔑 ÉTAPE IMPORTANTE : COLLEZ VOTRE URL GOOGLE SHEET ICI
+    const GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRO9Ylv3GrLJI6OtTQu5sC9MY2-2IdZ-G-uxltTBbVnQ9L8ztg_LGtK-HSrRbnIeYlu21j29-FhF9Cw/pub?output=csv";
+    
+    // 🔑 ÉTAPE IMPORTANTE : METTEZ VOTRE NUMÉRO WHATSAPP ICI (format: 221771234567)
+    const YOUR_WHATSAPP_NUMBER = "22890393720";
+    
+    let articles = [];
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    let categories = new Set();
+
+    // Charger les articles depuis Google Sheets
+    async function loadArticles() {
+      try {
+        const response = await fetch(GOOGLE_SHEET_URL);
+        const csvText = await response.text();
+        parseCSV(csvText);
+      } catch (error) {
+        document.getElementById('articles-container').innerHTML = 
+          '<div class="no-articles">❌ Impossible de charger les articles.<br>Vérifiez l\'URL de votre Google Sheet.</div>';
+        console.error('Erreur:', error);
+      }
+    }
+
+    // Parser le CSV
+    function parseCSV(csv) {
+      const lines = csv.split('\n');
+      const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+      
+      // Vérifier que les colonnes sont correctes
+      if (!headers.includes('Catégorie') || !headers.includes('Article') || !headers.includes('Prix')) {
+        document.getElementById('articles-container').innerHTML = 
+          '<div class="no-articles">❌ Erreur de format.<br>Votre Google Sheet doit avoir les colonnes : Catégorie, Article, Prix</div>';
+        return;
+      }
+      
+      articles = [];
+      categories.clear();
+      
+      // Trouver les index des colonnes
+      const catIndex = headers.findIndex(h => h === 'Catégorie');
+      const nameIndex = headers.findIndex(h => h === 'Article');
+      const priceIndex = headers.findIndex(h => h === 'Prix');
+      
+      for (let i = 1; i < lines.length; i++) {
+        if (!lines[i].trim()) continue;
+        
+        const values = lines[i].split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+        
+        if (values.length >= 3 && values[nameIndex] && values[priceIndex]) {
+          const article = {
+            id: i,
+            category: values[catIndex] || 'Divers',
+            name: values[nameIndex],
+            price: parseInt(values[priceIndex]) || 0
+          };
+          
+          articles.push(article);
+          categories.add(article.category);
+        }
+      }
+      
+      displayCategories();
+      displayArticles(articles);
+      updateCart();
+    }
+
+    // Afficher les catégories dans le filtre
+    function displayCategories() {
+      const select = document.getElementById('category-filter');
+      const currentSelection = select.value;
+      
+      // Garder "Toutes les catégories"
+      while (select.options.length > 1) {
+        select.remove(1);
+      }
+      
+      Array.from(categories).sort().forEach(category => {
+        const option = document.createElement('option');
+        option.value = category;
+        option.textContent = category;
+        select.appendChild(option);
+      });
+      
+      // Restaurer la sélection précédente si elle existe toujours
+      if (categories.has(currentSelection)) {
+        select.value = currentSelection;
+      }
+    }
+
+    // Afficher les articles
+    function displayArticles(items) {
+      const container = document.getElementById('articles-container');
+      
+      if (items.length === 0) {
+        container.innerHTML = '<div class="no-articles">Aucun article disponible dans cette catégorie.</div>';
+        return;
+      }
+      
+      container.innerHTML = '';
+      
+      items.forEach(article => {
+        const card = document.createElement('div');
+        card.className = 'article-card';
+        card.innerHTML = `
+          <div class="article-category">${article.category}</div>
+          <div class="article-name">${article.name}</div>
+          <div class="article-price">${article.price.toLocaleString()} FCFA</div>
+          <button class="add-to-cart" onclick="addToCart(${article.id})">Ajouter au panier</button>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // Filtrer par catégorie
+    function filterArticles() {
+      const category = document.getElementById('category-filter').value;
+      
+      if (category === 'all') {
+        displayArticles(articles);
+      } else {
+        const filtered = articles.filter(a => a.category === category);
+        displayArticles(filtered);
+      }
+    }
+
+    // Ajouter au panier
+    function addToCart(articleId) {
+      const article = articles.find(a => a.id === articleId);
+      
+      if (!article) return;
+      
+      const existing = cart.find(item => item.id === articleId);
+      
+      if (existing) {
+        existing.quantity += 1;
+      } else {
+        cart.push({...article, quantity: 1});
+      }
+      
+      saveCart();
+      updateCart();
+      
+      // Petit message de confirmation
+      alert(`✅ ${article.name} ajouté au panier !`);
+    }
+
+    // Mettre à jour l'affichage du panier
+    function updateCart() {
+      // Compteur
+      const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+      document.getElementById('cart-count').textContent = count;
+      
+      // Total
+      const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      document.getElementById('cart-total').textContent = total.toLocaleString();
+      document.getElementById('checkout-total').textContent = total.toLocaleString();
+      
+      // Liste des articles
+      const cartItems = document.getElementById('cart-items');
+      
+      if (cart.length === 0) {
+        cartItems.innerHTML = '<p>Votre panier est vide</p>';
+        return;
+      }
+      
+      cartItems.innerHTML = cart.map(item => `
+        <div class="cart-item">
+          <div class="cart-item-info">
+            <div class="cart-item-name">${item.name}</div>
+            <div class="cart-item-price">${item.price.toLocaleString()} FCFA × <span id="qty-${item.id}">${item.quantity}</span></div>
+          </div>
+          <div class="quantity-controls">
+            <button class="quantity-btn" onclick="changeQuantity(${item.id}, -1)">-</button>
+            <span class="quantity-display">${item.quantity}</span>
+            <button class="quantity-btn" onclick="changeQuantity(${item.id}, 1)">+</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Modifier la quantité
+    function changeQuantity(articleId, delta) {
+      const item = cart.find(item => item.id === articleId);
+      
+      if (!item) return;
+      
+      if (delta === -1 && item.quantity <= 1) {
+        // Supprimer l'article si quantité = 1 et on clique sur "-"
+        if (confirm(`Retirer ${item.name} du panier ?`)) {
+          cart = cart.filter(item => item.id !== articleId);
+        }
+      } else {
+        item.quantity += delta;
+      }
+      
+      saveCart();
+      updateCart();
+    }
+
+    // Sauvegarder le panier
+    function saveCart() {
+      localStorage.setItem('cart', JSON.stringify(cart));
+    }
+
+    // Ouvrir/Fermer le panier
+    function openCart() {
+      document.getElementById('cart-modal').style.display = 'flex';
+    }
+    
+    function closeCart() {
+      document.getElementById('cart-modal').style.display = 'none';
+    }
+
+    // Ouvrir/Fermer le checkout
+    function openCheckout() {
+      if (cart.length === 0) {
+        alert('Votre panier est vide !');
+        return;
+      }
+      closeCart();
+      document.getElementById('checkout-modal').style.display = 'flex';
+    }
+    
+    function closeCheckout() {
+      document.getElementById('checkout-modal').style.display = 'none';
+    }
+
+    // Envoyer la commande
+    function sendOrder() {
+      const name = document.getElementById('customer-name').value.trim();
+      const phone = document.getElementById('customer-phone').value.trim();
+      const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      
+      if (!name || !phone) {
+        alert('Veuillez remplir tous les champs obligatoires.');
+        return;
+      }
+      
+      // Message pour vous (vendeur)
+      let sellerMessage = `🛒 *NOUVELLE COMMANDE - PROCURE SHOP*\n\n`;
+      sellerMessage += `👤 Client: ${name}\n`;
+      sellerMessage += `📱 WhatsApp: ${phone}\n\n`;
+      sellerMessage += `📦 Articles commandés:\n`;
+      
+      cart.forEach(item => {
+        sellerMessage += `• ${item.name} × ${item.quantity} = ${(item.price * item.quantity).toLocaleString()} FCFA\n`;
+      });
+      
+      sellerMessage += `\n💰 TOTAL: ${total.toLocaleString()} FCFA`;
+      
+      // Message pour le client
+      let clientMessage = `Bonjour ${name},\n\n`;
+      clientMessage += `✅ Votre commande chez la *PROCURE SHOP* a bien été reçue !\n\n`;
+      clientMessage += `📦 Votre commande:\n`;
+      
+      cart.forEach(item => {
+        clientMessage += `• ${item.name} × ${item.quantity}\n`;
+      });
+      
+      clientMessage += `\n💰 Total: ${total.toLocaleString()} FCFA`;
+      clientMessage += `\n\nMerci pour votre confiance ! Nous vous contacterons bientôt pour la livraison.`;
+      
+      // Ouvrir WhatsApp pour le vendeur
+      const sellerUrl = `https://wa.me/${YOUR_WHATSAPP_NUMBER}?text=${encodeURIComponent(sellerMessage)}`;
+      window.open(sellerUrl, '_blank');
+      
+      // Ouvrir WhatsApp pour le client
+      const cleanPhone = phone.replace(/\D/g, '');
+      const clientUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(clientMessage)}`;
+      window.open(clientUrl, '_blank');
+      
+      // Vider le panier
+      cart = [];
+      saveCart();
+      updateCart();
+      
+      // Fermer le modal
+      closeCheckout();
+      
+      // Message de confirmation
+      alert('✅ Commande envoyée !\n\nDeux fenêtres WhatsApp vont s\'ouvrir :\n1️⃣ Pour vous (vendeur)\n2️⃣ Pour le client\n\nCliquez sur "Envoyer" dans chaque fenêtre pour confirmer.');
+    }
+
+    // Fermer les modals en cliquant en dehors
+    window.onclick = function(event) {
+      const cartModal = document.getElementById('cart-modal');
+      const checkoutModal = document.getElementById('checkout-modal');
+      
+      if (event.target === cartModal) {
+        closeCart();
+      }
+      
+      if (event.target === checkoutModal) {
+        closeCheckout();
+      }
+    }
+
+    // Charger les articles au démarrage
+    window.onload = loadArticles;
+  </script>
+</body>
+</html>
