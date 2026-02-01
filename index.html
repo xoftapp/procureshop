@@ -337,11 +337,14 @@
       color: var(--gray);
     }
     
-    .no-articles {
-      text-align: center;
-      padding: 2.5rem;
-      color: var(--gray);
-      font-size: 1rem;
+    .error-message {
+      background-color: #fef2f2;
+      color: #b91c1c;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+      font-size: 0.95rem;
+      line-height: 1.5;
     }
     
     .success-modal {
@@ -382,6 +385,13 @@
       color: var(--gray);
       margin-bottom: 1.5rem;
       line-height: 1.6;
+      text-align: left;
+      font-family: monospace;
+      background-color: #f8fafc;
+      padding: 1.2rem;
+      border-radius: 8px;
+      max-height: 60vh;
+      overflow-y: auto;
     }
     
     .success-btn {
@@ -458,7 +468,7 @@
     <div class="checkout-content">
       <button class="close-btn" onclick="closeCheckout()">×</button>
       <h2>Finaliser la commande</h2>
-      <input type="text" id="customer-name" placeholder="Nom ou Praesidium *" required>
+      <input type="text" id="customer-name" placeholder="Nom complet *" required>
       <input type="tel" id="customer-phone" placeholder="Numéro WhatsApp (ex: 22890393720) *" required>
       <div class="cart-total">Total à payer: <span id="checkout-total">0</span> FCFA</div>
       <button class="checkout-btn" onclick="sendOrder()">Confirmer la commande</button>
@@ -475,75 +485,146 @@
   </div>
 
   <script>
-    // 🔑 COLLEZ VOTRE URL GOOGLE SHEET ICI
-    const GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/1y1_C3bc22TBHEimGG7uqvfgiTJo4QTD5wbJQmGvtG_A/edit?usp=sharing";
+    // 🔑 COLLEZ VOTRE URL GOOGLE SHEET ICI (exemple format correct)
+    const GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRO9Ylv3GrLJI6OtTQu5sC9MY2-2IdZ-G-uxltTBbVnQ9L8ztg_LGtK-HSrRbnIeYlu21j29-FhF9Cw/pub?gid=0&single=true&output=csv";
     
-    // 🔑 METTEZ VOTRE NUMÉRO WHATSAPP ICI (format: 221771234567)
+    // 🔑 METTEZ VOTRE NUMÉRO WHATSAPP ICI (format: 22890393720)
     const YOUR_WHATSAPP_NUMBER = "22890393720";
     
     let articles = [];
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
     let categories = new Set();
 
-    // Charger les articles depuis Google Sheets
-    async function loadArticles() {
-      try {
-        const response = await fetch(GOOGLE_SHEET_URL);
-        const csvText = await response.text();
-        parseCSV(csvText);
-      } catch (error) {
-        document.getElementById('articles-container').innerHTML = 
-          '<div class="no-articles">Impossible de charger les articles.<br>Vérifiez l\'URL de votre Google Sheet.</div>';
-        console.error('Erreur:', error);
-      }
-    }
-
-    // Parser le CSV
-    function parseCSV(csv) {
-      const lines = csv.split('\n');
-      const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+    // Fonction robuste pour parser le CSV
+    function parseCSV(csvText) {
+      // Nettoyer le texte et diviser en lignes
+      const lines = csvText.trim().split(/\r?\n/);
       
-      if (!headers.includes('Catégorie') || !headers.includes('Article') || !headers.includes('Prix')) {
-        document.getElementById('articles-container').innerHTML = 
-          '<div class="no-articles">Erreur de format.<br>Votre Google Sheet doit avoir les colonnes : Catégorie, Article, Prix</div>';
+      if (lines.length < 2) {
+        showError('Le fichier est vide ou mal formaté');
         return;
       }
       
+      // Parser les headers (première ligne)
+      const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+      
+      // Chercher les colonnes nécessaires (tolérant aux accents et majuscules)
+      const catCol = headers.findIndex(h => 
+        h.toLowerCase().includes('categorie') || 
+        h.toLowerCase().includes('category')
+      );
+      
+      const nameCol = headers.findIndex(h => 
+        h.toLowerCase().includes('article') || 
+        h.toLowerCase().includes('nom') ||
+        h.toLowerCase().includes('name')
+      );
+      
+      const priceCol = headers.findIndex(h => 
+        h.toLowerCase().includes('prix') || 
+        h.toLowerCase().includes('price')
+      );
+      
+      // Vérification des colonnes
+      if (catCol === -1 || nameCol === -1 || priceCol === -1) {
+        let errorMsg = 'Colonnes requises non trouvées.<br><br>';
+        errorMsg += 'Votre Google Sheet doit avoir ces 3 colonnes (dans l\'ordre) :<br>';
+        errorMsg += '<strong>1. Catégorie</strong><br>';
+        errorMsg += '<strong>2. Article</strong><br>';
+        errorMsg += '<strong>3. Prix</strong><br><br>';
+        errorMsg += 'Colonnes détectées :<br>' + headers.map((h, i) => `${i+1}. ${h}`).join('<br>');
+        showError(errorMsg);
+        return;
+      }
+      
+      // Parser les données
       articles = [];
       categories.clear();
-      
-      const catIndex = headers.findIndex(h => h === 'Catégorie');
-      const nameIndex = headers.findIndex(h => h === 'Article');
-      const priceIndex = headers.findIndex(h => h === 'Prix');
       
       for (let i = 1; i < lines.length; i++) {
         if (!lines[i].trim()) continue;
         
-        const values = lines[i].split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+        // Gérer les valeurs entre guillemets
+        const values = parseCSVLine(lines[i]);
         
-        if (values.length >= 3 && values[nameIndex] && values[priceIndex]) {
-          const article = {
+        if (values.length < 3) continue;
+        
+        const category = values[catCol]?.trim() || 'Divers';
+        const name = values[nameCol]?.trim();
+        const priceStr = values[priceCol]?.trim().replace(/\s/g, '').replace(',', '.');
+        const price = parseFloat(priceStr) || 0;
+        
+        if (name && price > 0) {
+          articles.push({
             id: i,
-            category: values[catIndex] || 'Divers',
-            name: values[nameIndex],
-            price: parseInt(values[priceIndex]) || 0
-          };
+            category: category,
+            name: name,
+            price: Math.round(price)
+          });
           
-          articles.push(article);
-          categories.add(article.category);
+          categories.add(category);
         }
+      }
+      
+      if (articles.length === 0) {
+        showError('Aucun article valide trouvé.<br>Vérifiez que les prix sont des nombres sans symboles (ex: 750 et non 750 FCFA).');
+        return;
       }
       
       displayCategories();
       displayArticles(articles);
       updateCart();
     }
+    
+    // Parser une ligne CSV en gérant les guillemets
+    function parseCSVLine(line) {
+      const values = [];
+      let current = '';
+      let inQuotes = false;
+      
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        
+        if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+          values.push(current.trim());
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      
+      values.push(current.trim());
+      return values;
+    }
 
-    // Afficher les catégories dans le filtre
+    // Afficher une erreur
+    function showError(message) {
+      document.getElementById('articles-container').innerHTML = 
+        `<div class="error-message">${message}</div>`;
+    }
+
+    // Charger les articles
+    async function loadArticles() {
+      try {
+        const response = await fetch(GOOGLE_SHEET_URL);
+        if (!response.ok) {
+          throw new Error('Impossible de charger le fichier Google Sheet');
+        }
+        const csvText = await response.text();
+        parseCSV(csvText);
+      } catch (error) {
+        showError('Erreur de connexion.<br>Vérifiez que votre Google Sheet est publié en mode "public".');
+        console.error('Erreur:', error);
+      }
+    }
+
+    // Afficher les catégories
     function displayCategories() {
       const select = document.getElementById('category-filter');
-      const currentSelection = select.value;
       
+      // Garder "Toutes les catégories"
       while (select.options.length > 1) {
         select.remove(1);
       }
@@ -554,10 +635,6 @@
         option.textContent = category;
         select.appendChild(option);
       });
-      
-      if (categories.has(currentSelection)) {
-        select.value = currentSelection;
-      }
     }
 
     // Afficher les articles
@@ -565,7 +642,7 @@
       const container = document.getElementById('articles-container');
       
       if (items.length === 0) {
-        container.innerHTML = '<div class="no-articles">Aucun article disponible dans cette catégorie.</div>';
+        container.innerHTML = '<div class="loading">Aucun article dans cette catégorie</div>';
         return;
       }
       
@@ -616,7 +693,7 @@
       alert('Article ajouté au panier');
     }
 
-    // Mettre à jour l'affichage du panier
+    // Mettre à jour le panier
     function updateCart() {
       const count = cart.reduce((sum, item) => sum + item.quantity, 0);
       document.getElementById('cart-count').textContent = count;
@@ -636,7 +713,7 @@
         <div class="cart-item">
           <div class="cart-item-info">
             <div class="cart-item-name">${item.name}</div>
-            <div class="cart-item-price">${item.price.toLocaleString()} FCFA x <span id="qty-${item.id}">${item.quantity}</span></div>
+            <div class="cart-item-price">${item.price.toLocaleString()} FCFA x ${item.quantity}</div>
           </div>
           <div class="quantity-controls">
             <button class="quantity-btn" onclick="changeQuantity(${item.id}, -1)">-</button>
@@ -712,10 +789,10 @@
         return;
       }
       
-      // Message pour le client
+      // Message pour le client (sans emojis, propre)
       let clientMessage = `Bonjour ${name},\n\n`;
-      clientMessage += `Votre commande chez PROCURE SHOP a bien ete confirmee.\n\n`;
-      clientMessage += `Articles commandes :\n`;
+      clientMessage += `Votre commande PROCURE SHOP a ete confirmee.\n\n`;
+      clientMessage += `Articles :\n`;
       
       cart.forEach(item => {
         clientMessage += `- ${item.name} x ${item.quantity}\n`;
@@ -729,11 +806,10 @@
       const clientUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(clientMessage)}`;
       window.open(clientUrl, '_blank');
       
-      // Afficher le message de succes avec les details pour le vendeur
-      let orderDetails = `Nouvelle commande recue :\n\n`;
-      orderDetails += `Client : ${name}\n`;
-      orderDetails += `WhatsApp : ${phone}\n\n`;
-      orderDetails += `Articles :\n`;
+      // Préparer les détails pour le vendeur
+      let orderDetails = `CLIENT : ${name}\n`;
+      orderDetails += `WHATSAPP : ${phone}\n\n`;
+      orderDetails += `ARTICLES :\n`;
       
       cart.forEach(item => {
         orderDetails += `- ${item.name} x ${item.quantity} = ${(item.price * item.quantity).toLocaleString()} FCFA\n`;
@@ -741,27 +817,29 @@
       
       orderDetails += `\nTOTAL : ${total.toLocaleString()} FCFA`;
       
-      document.getElementById('success-message').innerHTML = 
-        `<strong>${orderDetails}</strong><br><br>` +
-        `Un message WhatsApp a ete envoye au client.<br>` +
-        `Vous pouvez copier ces informations pour votre suivi.`;
-      
+      // Afficher confirmation
+      document.getElementById('success-message').textContent = orderDetails;
       document.getElementById('success-modal').style.display = 'flex';
       closeCheckout();
+      
+      // Message simple et professionnel
+      alert('Commande confirmée ! Un message WhatsApp a été envoyé au client.');
     }
 
     // Fermer les modals en cliquant en dehors
     window.onclick = function(event) {
-      const cartModal = document.getElementById('cart-modal');
-      const checkoutModal = document.getElementById('checkout-modal');
-      const successModal = document.getElementById('success-modal');
+      const modals = [
+        { el: document.getElementById('cart-modal'), fn: closeCart },
+        { el: document.getElementById('checkout-modal'), fn: closeCheckout },
+        { el: document.getElementById('success-modal'), fn: closeSuccess }
+      ];
       
-      if (event.target === cartModal) closeCart();
-      if (event.target === checkoutModal) closeCheckout();
-      if (event.target === successModal) closeSuccess();
+      modals.forEach(m => {
+        if (event.target === m.el) m.fn();
+      });
     }
 
-    // Charger les articles au demarrage
+    // Charger au démarrage
     window.onload = loadArticles;
   </script>
 </body>
