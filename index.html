@@ -91,7 +91,7 @@
     }
     
     .filter-section h3::before {
-      content: "🔍";
+      content: "";
       font-size: 1.1rem;
     }
     
@@ -304,14 +304,6 @@
     .cart-item-name {
       font-weight: 600;
       font-size: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    
-    .cart-item-name::before {
-      content: "📦";
-      font-size: 1.1rem;
     }
     
     .cart-item-price {
@@ -365,15 +357,6 @@
       text-align: right;
       padding-top: 1.2rem;
       border-top: 3px double #e2e8f0;
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 10px;
-    }
-    
-    .cart-total::before {
-      content: "💰";
-      font-size: 1.5rem;
     }
     
     .checkout-btn {
@@ -392,7 +375,7 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
-      box-shadow: 0 4px 1px rgba(16, 185, 129, 0.3);
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
     }
     
     .checkout-btn:hover {
@@ -461,15 +444,6 @@
       margin-bottom: 1.5rem;
       text-align: center;
       font-size: 1.6rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-    
-    .checkout-content h2::before {
-      content: "📱";
-      font-size: 1.4rem;
     }
     
     input {
@@ -580,15 +554,6 @@
       color: var(--primary-dark);
       margin-bottom: 1.2rem;
       font-size: 1.8rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-    
-    .success-content h2::before {
-      content: "✅";
-      font-size: 1.6rem;
     }
     
     .success-message {
@@ -705,8 +670,8 @@
     <div class="checkout-content">
       <button class="close-btn" onclick="closeCheckout()">×</button>
       <h2>Finaliser la commande</h2>
-      <input type="text" id="customer-name" placeholder="Nom complet ou Praesidium *" required>
-      <input type="tel" id="customer-phone" placeholder="Numéro WhatsApp (ex: 22890000000) *" required>
+      <input type="text" id="customer-name" placeholder="Nom complet *" required>
+      <input type="tel" id="customer-phone" placeholder="Numéro WhatsApp (ex: 221771234567) *" required>
       <div class="cart-total">Total à payer: <span id="checkout-total">0</span> FCFA</div>
       <button class="checkout-btn" onclick="sendOrder()">Confirmer la commande</button>
     </div>
@@ -714,7 +679,7 @@
 
   <div class="success-modal" id="success-modal">
     <div class="success-content">
-      <div class="success-icon">✅</div>
+      <div class="success-icon">✓</div>
       <h2>Commande confirmée</h2>
       <p class="success-message" id="success-message"></p>
       <button class="success-btn" onclick="closeSuccess()">Fermer</button>
@@ -722,11 +687,11 @@
   </div>
 
   <script>
-    // 🔑 COLLEZ VOTRE URL GOOGLE SHEET ICI (exemple format correct)
-    const GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRO9Ylv3GrLJI6OtTQu5sC9MY2-2IdZ-G-uxltTBbVnQ9L8ztg_LGtK-HSrRbnIeYlu21j29-FhF9Cw/pub?gid=0&single=true&output=csv";
+    // 🔑 COLLEZ VOTRE URL GOOGLE SHEET ICI
+    const GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vB_example/pub?output=csv";
     
-    // 🔑 METTEZ VOTRE NUMÉRO WHATSAPP ICI (format: 22890000000)
-    const YOUR_WHATSAPP_NUMBER = "22890393720";
+    // 🔑 METTEZ VOTRE NUMÉRO WHATSAPP ICI (format: 221771234567)
+    const YOUR_WHATSAPP_NUMBER = "221771234567";
     
     let articles = [];
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -734,7 +699,6 @@
 
     // Fonction robuste pour parser le CSV
     function parseCSV(csvText) {
-      // Nettoyer le texte et diviser en lignes
       const lines = csvText.trim().split(/\r?\n/);
       
       if (lines.length < 2) {
@@ -742,10 +706,8 @@
         return;
       }
       
-      // Parser les headers (première ligne)
       const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
       
-      // Chercher les colonnes nécessaires (tolérant aux accents et majuscules)
       const catCol = headers.findIndex(h => 
         h.toLowerCase().includes('categorie') || 
         h.toLowerCase().includes('catégorie') || 
@@ -765,7 +727,6 @@
         h.toLowerCase().includes('montant')
       );
       
-      // Vérification des colonnes
       if (catCol === -1 || nameCol === -1 || priceCol === -1) {
         let errorMsg = 'Colonnes requises non trouvées.<br><br>';
         errorMsg += 'Votre Google Sheet doit avoir ces 3 colonnes (dans l\'ordre) :<br>';
@@ -777,14 +738,12 @@
         return;
       }
       
-      // Parser les données
       articles = [];
       categories.clear();
       
       for (let i = 1; i < lines.length; i++) {
         if (!lines[i].trim()) continue;
         
-        // Gérer les valeurs entre guillemets
         const values = parseCSVLine(lines[i]);
         
         if (values.length < 3) continue;
@@ -816,7 +775,6 @@
       updateCart();
     }
     
-    // Parser une ligne CSV en gérant les guillemets
     function parseCSVLine(line) {
       const values = [];
       let current = '';
@@ -839,13 +797,11 @@
       return values;
     }
 
-    // Afficher une erreur
     function showError(message) {
       document.getElementById('articles-container').innerHTML = 
         `<div class="error-message">${message}</div>`;
     }
 
-    // Charger les articles
     async function loadArticles() {
       try {
         const response = await fetch(GOOGLE_SHEET_URL);
@@ -860,11 +816,9 @@
       }
     }
 
-    // Afficher les catégories
     function displayCategories() {
       const select = document.getElementById('category-filter');
       
-      // Garder "Toutes les catégories"
       while (select.options.length > 1) {
         select.remove(1);
       }
@@ -877,7 +831,6 @@
       });
     }
 
-    // Afficher les articles
     function displayArticles(items) {
       const container = document.getElementById('articles-container');
       
@@ -895,13 +848,12 @@
           <div class="article-category">${article.category}</div>
           <div class="article-name">${article.name}</div>
           <div class="article-price">${article.price.toLocaleString()} FCFA</div>
-          <button class="add-to-cart" onclick="addToCart(${article.id})">Ajouter au panier 🛒</button>
+          <button class="add-to-cart" onclick="addToCart(${article.id})">Ajouter au panier</button>
         `;
         container.appendChild(card);
       });
     }
 
-    // Filtrer par catégorie
     function filterArticles() {
       const category = document.getElementById('category-filter').value;
       
@@ -913,7 +865,6 @@
       }
     }
 
-    // Ajouter au panier
     function addToCart(articleId) {
       const article = articles.find(a => a.id === articleId);
       
@@ -930,19 +881,9 @@
       saveCart();
       updateCart();
       
-      // Animation de confirmation
-      const card = document.querySelector(`.article-card:nth-of-type(${article.id})`);
-      if (card) {
-        card.style.animation = 'none';
-        setTimeout(() => {
-          card.style.animation = 'pulse 0.5s';
-        }, 10);
-      }
-      
-      alert('Article ajouté au panier !');
+      alert('Article ajouté au panier avec succès !');
     }
 
-    // Mettre à jour le panier
     function updateCart() {
       const count = cart.reduce((sum, item) => sum + item.quantity, 0);
       document.getElementById('cart-count').textContent = count;
@@ -973,7 +914,6 @@
       `).join('');
     }
 
-    // Modifier la quantité
     function changeQuantity(articleId, delta) {
       const item = cart.find(item => item.id === articleId);
       
@@ -991,12 +931,10 @@
       updateCart();
     }
 
-    // Sauvegarder le panier
     function saveCart() {
       localStorage.setItem('cart', JSON.stringify(cart));
     }
 
-    // Ouvrir/Fermer le panier
     function openCart() {
       document.getElementById('cart-modal').style.display = 'flex';
     }
@@ -1005,7 +943,6 @@
       document.getElementById('cart-modal').style.display = 'none';
     }
 
-    // Ouvrir/Fermer le checkout
     function openCheckout() {
       if (cart.length === 0) {
         alert('Votre panier est vide');
@@ -1019,7 +956,6 @@
       document.getElementById('checkout-modal').style.display = 'none';
     }
 
-    // Fermer le message de succès
     function closeSuccess() {
       document.getElementById('success-modal').style.display = 'none';
       cart = [];
@@ -1027,7 +963,6 @@
       updateCart();
     }
 
-    // Envoyer la commande
     function sendOrder() {
       const name = document.getElementById('customer-name').value.trim();
       const phone = document.getElementById('customer-phone').value.trim();
@@ -1038,44 +973,58 @@
         return;
       }
       
-      // Message pour le client (avec emojis WhatsApp compatibles)
-      let clientMessage = `Bonjour ${name},\n\n`;
-      clientMessage += `✅ Votre commande PROCURE SHOP a été confirmée !\n\n`;
-      clientMessage += `📦 Articles commandés :\n`;
+      // Message pour le CLIENT (confirmation)
+      let clientMessage = `Bonjour ${name},\n`;
+      clientMessage += `Votre commande chez PROCURE SHOP a ete confirmee.\n\n`;
+      clientMessage += `Articles commandes :\n`;
       
       cart.forEach(item => {
-        clientMessage += `• ${item.name} x ${item.quantity}\n`;
+        clientMessage += `- ${item.name} x ${item.quantity}\n`;
       });
       
-      clientMessage += `\n💰 Total : ${total.toLocaleString()} FCFA\n\n`;
-      clientMessage += `Merci pour votre confiance. Nous vous contacterons pour la livraison.`;
+      clientMessage += `\nTotal : ${total.toLocaleString()} FCFA`;
+      clientMessage += `\n\nMerci pour votre confiance. Nous vous contacterons pour la livraison.`;
       
-      // Ouvrir WhatsApp pour le client
+      // Message pour le VENDEUR (nouvelle commande)
+      let sellerMessage = `NOUVELLE COMMANDE PROCURE SHOP\n\n`;
+      sellerMessage += `Client : ${name}\n`;
+      sellerMessage += `WhatsApp : ${phone}\n`;
+      sellerMessage += `Articles :\n`;
+      
+      cart.forEach(item => {
+        sellerMessage += `- ${item.name} x ${item.quantity} = ${(item.price * item.quantity).toLocaleString()} FCFA\n`;
+      });
+      
+      sellerMessage += `\nTOTAL : ${total.toLocaleString()} FCFA`;
+      
+      // Ouvrir WhatsApp pour le CLIENT
       const cleanPhone = phone.replace(/\D/g, '');
       const clientUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(clientMessage)}`;
       window.open(clientUrl, '_blank');
       
-      // Préparer les détails pour le vendeur
-      let orderDetails = `CLIENT : ${name}\n`;
-      orderDetails += `WHATSAPP : ${phone}\n\n`;
-      orderDetails += `ARTICLES :\n`;
+      // Ouvrir WhatsApp pour le VENDEUR
+      const sellerUrl = `https://wa.me/${YOUR_WHATSAPP_NUMBER}?text=${encodeURIComponent(sellerMessage)}`;
+      window.open(sellerUrl, '_blank');
+      
+      // Préparer les détails pour l'écran de confirmation
+      let orderDetails = `Commande confirmee avec succes.\n\n`;
+      orderDetails += `Client : ${name}\n`;
+      orderDetails += `WhatsApp : ${phone}\n\n`;
+      orderDetails += `Articles :\n`;
       
       cart.forEach(item => {
-        orderDetails += `• ${item.name} x ${item.quantity} = ${(item.price * item.quantity).toLocaleString()} FCFA\n`;
+        orderDetails += `- ${item.name} x ${item.quantity} = ${(item.price * item.quantity).toLocaleString()} FCFA\n`;
       });
       
-      orderDetails += `\n💰 TOTAL : ${total.toLocaleString()} FCFA`;
+      orderDetails += `\nTOTAL : ${total.toLocaleString()} FCFA`;
       
-      // Afficher confirmation
       document.getElementById('success-message').textContent = orderDetails;
       document.getElementById('success-modal').style.display = 'flex';
       closeCheckout();
       
-      // Message simple et professionnel
-      alert('Commande confirmée ! Un message WhatsApp a été envoyé au client.');
+      alert('Commande confirmee ! Un message de confirmation a ete envoye au client.');
     }
 
-    // Fermer les modals en cliquant en dehors
     window.onclick = function(event) {
       const modals = [
         { el: document.getElementById('cart-modal'), fn: closeCart },
@@ -1088,7 +1037,6 @@
       });
     }
 
-    // Charger au démarrage
     window.onload = loadArticles;
   </script>
 </body>
