@@ -671,7 +671,7 @@
       <button class="close-btn" onclick="closeCheckout()">×</button>
       <h2>Finaliser la commande</h2>
       <input type="text" id="customer-name" placeholder="Nom complet *" required>
-      <input type="tel" id="customer-phone" placeholder="Numéro WhatsApp (ex: 221771234567) *" required>
+      <input type="tel" id="customer-phone" placeholder="Numéro WhatsApp (ex: 22890000000) *" required>
       <div class="cart-total">Total à payer: <span id="checkout-total">0</span> FCFA</div>
       <button class="checkout-btn" onclick="sendOrder()">Confirmer la commande</button>
     </div>
@@ -688,10 +688,10 @@
 
   <script>
     // 🔑 COLLEZ VOTRE URL GOOGLE SHEET ICI
-    const GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vB_example/pub?output=csv";
+    const GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRO9Ylv3GrLJI6OtTQu5sC9MY2-2IdZ-G-uxltTBbVnQ9L8ztg_LGtK-HSrRbnIeYlu21j29-FhF9Cw/pub?gid=0&single=true&output=csv";
     
-    // 🔑 METTEZ VOTRE NUMÉRO WHATSAPP ICI (format: 221771234567)
-    const YOUR_WHATSAPP_NUMBER = "221771234567";
+    // 🔑 METTEZ VOTRE NUMÉRO WHATSAPP ICI (format: 22890000000)
+    const YOUR_WHATSAPP_NUMBER = "22890393720";
     
     let articles = [];
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
