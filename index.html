@@ -669,9 +669,9 @@
   <div class="checkout-modal" id="checkout-modal">
     <div class="checkout-content">
       <button class="close-btn" onclick="closeCheckout()">×</button>
-      <h2>Finaliser la commande</h2>
+      <h2>Vérification</h2>
       <input type="text" id="customer-name" placeholder="Nom complet *" required>
-      <input type="tel" id="customer-phone" placeholder="Numéro WhatsApp (ex: 22890000000) *" required>
+      <input type="tel" id="customer-phone" placeholder="Numéro WhatsApp (ex: 22890393720) *" required>
       <div class="cart-total">Total à payer: <span id="checkout-total">0</span> FCFA</div>
       <button class="checkout-btn" onclick="sendOrder()">Confirmer la commande</button>
     </div>
@@ -687,10 +687,10 @@
   </div>
 
   <script>
-    // 🔑 COLLEZ VOTRE URL GOOGLE SHEET ICI
+    // 🔑 URL Google Sheet intégrée
     const GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRO9Ylv3GrLJI6OtTQu5sC9MY2-2IdZ-G-uxltTBbVnQ9L8ztg_LGtK-HSrRbnIeYlu21j29-FhF9Cw/pub?gid=0&single=true&output=csv";
     
-    // 🔑 METTEZ VOTRE NUMÉRO WHATSAPP ICI (format: 22890000000)
+    // 🔑 Numéro WhatsApp du Chargé de la procure
     const YOUR_WHATSAPP_NUMBER = "22890393720";
     
     let articles = [];
@@ -881,7 +881,10 @@
       saveCart();
       updateCart();
       
-      alert('Article ajouté au panier avec succès !');
+      // Message simple sans domaine
+      setTimeout(() => {
+        alert('Article ajouté au panier avec succès !');
+      }, 100);
     }
 
     function updateCart() {
@@ -945,7 +948,9 @@
 
     function openCheckout() {
       if (cart.length === 0) {
-        alert('Votre panier est vide');
+        setTimeout(() => {
+          alert('Votre panier est vide');
+        }, 100);
         return;
       }
       closeCart();
@@ -969,27 +974,17 @@
       const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
       
       if (!name || !phone) {
-        alert('Veuillez remplir tous les champs');
+        setTimeout(() => {
+          alert('Veuillez remplir tous les champs');
+        }, 100);
         return;
       }
       
-      // Message pour le CLIENT (confirmation)
-      let clientMessage = `Bonjour ${name},\n`;
-      clientMessage += `Votre commande chez PROCURE SHOP a ete confirmee.\n\n`;
-      clientMessage += `Articles commandes :\n`;
-      
-      cart.forEach(item => {
-        clientMessage += `- ${item.name} x ${item.quantity}\n`;
-      });
-      
-      clientMessage += `\nTotal : ${total.toLocaleString()} FCFA`;
-      clientMessage += `\n\nMerci pour votre confiance. Nous vous contacterons pour la livraison.`;
-      
-      // Message pour le VENDEUR (nouvelle commande)
+      // Message pour le CHARGÉ DE LA PROCURE (vous)
       let sellerMessage = `NOUVELLE COMMANDE PROCURE SHOP\n\n`;
       sellerMessage += `Client : ${name}\n`;
-      sellerMessage += `WhatsApp : ${phone}\n`;
-      sellerMessage += `Articles :\n`;
+      sellerMessage += `WhatsApp : ${phone}\n\n`;
+      sellerMessage += `ARTICLES A PREPARER :\n`;
       
       cart.forEach(item => {
         sellerMessage += `- ${item.name} x ${item.quantity} = ${(item.price * item.quantity).toLocaleString()} FCFA\n`;
@@ -997,32 +992,40 @@
       
       sellerMessage += `\nTOTAL : ${total.toLocaleString()} FCFA`;
       
-      // Ouvrir WhatsApp pour le CLIENT
+      // Message pour le CLIENT (remerciement + rappel)
+      let clientMessage = `Bonjour ${name},\n\n`;
+      clientMessage += `Merci pour votre commande chez PROCURE SHOP !\n\n`;
+      clientMessage += `Rappel de votre commande :\n`;
+      
+      cart.forEach(item => {
+        clientMessage += `- ${item.name} x ${item.quantity}\n`;
+      });
+      
+      clientMessage += `\nTotal : ${total.toLocaleString()} FCFA\n\n`;
+      clientMessage += `Votre commande est en cours de preparation. Nous vous contacterons des que celle-ci sera prete pour la livraison.\n\n`;
+      clientMessage += `A tres bientot !`;
+      
+      // Ouvrir directement WhatsApp pour le CHARGÉ DE LA PROCURE
+      const sellerUrl = `https://wa.me/${YOUR_WHATSAPP_NUMBER}?text=${encodeURIComponent(sellerMessage)}`;
+      window.open(sellerUrl, '_blank');
+      
+      // Ouvrir directement WhatsApp pour le CLIENT
       const cleanPhone = phone.replace(/\D/g, '');
       const clientUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(clientMessage)}`;
       window.open(clientUrl, '_blank');
       
-      // Ouvrir WhatsApp pour le VENDEUR
-      const sellerUrl = `https://wa.me/${YOUR_WHATSAPP_NUMBER}?text=${encodeURIComponent(sellerMessage)}`;
-      window.open(sellerUrl, '_blank');
-      
-      // Préparer les détails pour l'écran de confirmation
-      let orderDetails = `Commande confirmee avec succes.\n\n`;
-      orderDetails += `Client : ${name}\n`;
-      orderDetails += `WhatsApp : ${phone}\n\n`;
-      orderDetails += `Articles :\n`;
-      
-      cart.forEach(item => {
-        orderDetails += `- ${item.name} x ${item.quantity} = ${(item.price * item.quantity).toLocaleString()} FCFA\n`;
-      });
-      
-      orderDetails += `\nTOTAL : ${total.toLocaleString()} FCFA`;
-      
-      document.getElementById('success-message').textContent = orderDetails;
-      document.getElementById('success-modal').style.display = 'flex';
+      // Fermer le modal de vérification
       closeCheckout();
       
-      alert('Commande confirmee ! Un message de confirmation a ete envoye au client.');
+      // Message de confirmation simple
+      setTimeout(() => {
+        alert('Commande confirmee ! Merci pour votre confiance.');
+      }, 100);
+      
+      // Vider le panier
+      cart = [];
+      saveCart();
+      updateCart();
     }
 
     window.onclick = function(event) {
