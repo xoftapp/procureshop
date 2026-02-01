@@ -12,6 +12,7 @@
       --dark: #0f172a;
       --success: #10b981;
       --gray: #64748b;
+      --warning: #f59e0b;
     }
     
     * {
@@ -22,23 +23,47 @@
     
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f8fafc;
+      background: linear-gradient(135deg, #f0f4ff 0%, #e6f0ff 100%);
       color: var(--dark);
       line-height: 1.6;
       padding-bottom: 80px;
+      min-height: 100vh;
     }
     
     .header {
-      background-color: var(--primary);
+      background: linear-gradient(to right, var(--primary), #1d4ed8);
       color: white;
-      padding: 1.2rem 1.5rem;
+      padding: 1.4rem 1.5rem;
       text-align: center;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 15px rgba(30, 58, 138, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .header::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+      transform: rotate(30deg);
     }
     
     .logo {
+      font-size: 1.9rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      position: relative;
+      z-index: 2;
+    }
+    
+    .logo-icon {
       font-size: 1.8rem;
-      font-weight: bold;
     }
     
     .container {
@@ -49,123 +74,184 @@
     
     .filter-section {
       background: white;
-      padding: 1.2rem;
-      border-radius: 10px;
-      margin-bottom: 1.5rem;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      padding: 1.3rem;
+      border-radius: 12px;
+      margin-bottom: 1.8rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      border-top: 4px solid var(--primary);
     }
     
     .filter-section h3 {
       margin-bottom: 0.8rem;
       color: var(--primary-dark);
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .filter-section h3::before {
+      content: "🔍";
       font-size: 1.1rem;
     }
     
     select {
-      padding: 0.7rem;
+      padding: 0.8rem 1rem;
       border: 2px solid #cbd5e1;
-      border-radius: 6px;
+      border-radius: 8px;
       font-size: 1rem;
       width: 100%;
       max-width: 300px;
       background-color: white;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+    
+    select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.2);
     }
     
     .articles-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 1.2rem;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
     }
     
     .article-card {
       background: white;
-      border-radius: 10px;
-      padding: 1.2rem;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      border-left: 3px solid var(--primary);
+      border-radius: 12px;
+      padding: 1.4rem;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.09);
+      transition: all 0.3s ease;
+      border-left: 4px solid var(--primary);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .article-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(to right, #10b981, #0ea5e9);
     }
     
     .article-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(30, 58, 138, 0.15);
+      border-left: 4px solid #0ea5e9;
     }
     
     .article-category {
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       color: var(--gray);
-      margin-bottom: 0.4rem;
+      margin-bottom: 0.5rem;
       font-weight: 600;
       text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
     }
     
     .article-name {
       font-weight: 600;
-      font-size: 1.1rem;
-      margin-bottom: 0.6rem;
+      font-size: 1.15rem;
+      margin-bottom: 0.7rem;
       color: var(--dark);
+      line-height: 1.3;
     }
     
     .article-price {
       color: var(--primary-dark);
       font-weight: bold;
-      font-size: 1.3rem;
-      margin-bottom: 0.8rem;
+      font-size: 1.4rem;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .article-price::before {
+      content: "₵";
+      font-size: 1.2rem;
+      color: var(--success);
     }
     
     .add-to-cart {
-      background-color: var(--primary);
+      background: linear-gradient(to right, var(--primary), var(--primary-dark));
       color: white;
       border: none;
-      padding: 0.7rem;
-      border-radius: 6px;
+      padding: 0.8rem;
+      border-radius: 8px;
       cursor: pointer;
       width: 100%;
-      font-size: 0.95rem;
-      transition: background-color 0.2s;
+      font-size: 1rem;
+      font-weight: 600;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 2px 8px rgba(30, 58, 138, 0.3);
     }
     
     .add-to-cart:hover {
-      background-color: var(--primary-dark);
+      background: linear-gradient(to right, #1d4ed8, #1e40af);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(30, 58, 138, 0.4);
     }
     
     .cart-icon {
       position: fixed;
-      bottom: 1.5rem;
-      right: 1.5rem;
-      background-color: var(--primary);
+      bottom: 1.8rem;
+      right: 1.8rem;
+      background: linear-gradient(to right, var(--primary), var(--primary-dark));
       color: white;
-      width: 55px;
-      height: 55px;
+      width: 60px;
+      height: 60px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.4rem;
+      font-size: 1.5rem;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      box-shadow: 0 6px 15px rgba(30, 58, 138, 0.4);
       z-index: 100;
-      transition: transform 0.2s;
+      transition: all 0.3s;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(30, 58, 138, 0.4); }
+      70% { box-shadow: 0 0 0 12px rgba(30, 58, 138, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(30, 58, 138, 0); }
     }
     
     .cart-icon:hover {
-      transform: scale(1.05);
+      transform: scale(1.08);
+      box-shadow: 0 8px 20px rgba(30, 58, 138, 0.5);
     }
     
     .cart-count {
       position: absolute;
-      top: -6px;
-      right: -6px;
+      top: -8px;
+      right: -8px;
       background-color: #ef4444;
       color: white;
-      width: 22px;
-      height: 22px;
+      width: 26px;
+      height: 26px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.75rem;
+      font-size: 0.85rem;
       font-weight: bold;
+      border: 2px solid white;
     }
     
     .cart-modal {
@@ -184,18 +270,30 @@
     .cart-content {
       background: white;
       width: 90%;
-      max-width: 500px;
-      border-radius: 12px;
-      padding: 1.8rem;
-      max-height: 80vh;
+      max-width: 550px;
+      border-radius: 16px;
+      padding: 2.2rem;
+      max-height: 85vh;
       overflow-y: auto;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      position: relative;
+    }
+    
+    .cart-content::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(to right, #10b981, #0ea5e9);
     }
     
     .cart-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0.8rem 0;
+      padding: 1rem 0;
       border-bottom: 1px solid #e2e8f0;
     }
     
@@ -205,87 +303,124 @@
     
     .cart-item-name {
       font-weight: 600;
-      font-size: 0.95rem;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .cart-item-name::before {
+      content: "📦";
+      font-size: 1.1rem;
     }
     
     .cart-item-price {
       color: var(--primary-dark);
       font-weight: bold;
-      font-size: 0.9rem;
+      font-size: 1rem;
     }
     
     .quantity-controls {
       display: flex;
       align-items: center;
-      gap: 8px;
-      margin-left: 12px;
+      gap: 10px;
+      margin-left: 15px;
     }
     
     .quantity-btn {
-      width: 28px;
-      height: 28px;
+      width: 32px;
+      height: 32px;
       background-color: var(--primary);
       color: white;
       border: none;
       border-radius: 50%;
       cursor: pointer;
-      font-size: 1rem;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    
+    .quantity-btn:hover {
+      background-color: var(--primary-dark);
+      transform: scale(1.1);
     }
     
     .quantity-display {
-      min-width: 28px;
+      min-width: 32px;
       text-align: center;
       font-weight: bold;
-      font-size: 0.9rem;
+      font-size: 1rem;
+      background: #f1f5f9;
+      padding: 4px 8px;
+      border-radius: 8px;
     }
     
     .cart-total {
-      font-size: 1.5rem;
+      font-size: 1.7rem;
       font-weight: bold;
       color: var(--primary-dark);
-      margin: 1.2rem 0;
+      margin: 1.5rem 0;
       text-align: right;
-      padding-top: 1rem;
-      border-top: 2px solid #e2e8f0;
+      padding-top: 1.2rem;
+      border-top: 3px double #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    
+    .cart-total::before {
+      content: "💰";
+      font-size: 1.5rem;
     }
     
     .checkout-btn {
-      background-color: var(--success);
+      background: linear-gradient(to right, var(--success), #0d9488);
       color: white;
       border: none;
-      padding: 0.9rem;
-      border-radius: 8px;
+      padding: 1rem;
+      border-radius: 10px;
       width: 100%;
-      font-size: 1rem;
+      font-size: 1.1rem;
       font-weight: bold;
       cursor: pointer;
-      margin-top: 1rem;
-      transition: background-color 0.2s;
+      margin-top: 1.2rem;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 4px 1px rgba(16, 185, 129, 0.3);
     }
     
     .checkout-btn:hover {
-      background-color: #0da271;
+      background: linear-gradient(to right, #0da271, #0c8c7a);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
     }
     
     .close-btn {
       float: right;
       background: none;
       border: none;
-      font-size: 1.6rem;
+      font-size: 1.8rem;
       cursor: pointer;
       color: var(--gray);
       padding: 0;
-      width: 30px;
-      height: 30px;
+      width: 35px;
+      height: 35px;
       display: flex;
       align-items: center;
       justify-content: center;
+      border-radius: 50%;
+      transition: all 0.2s;
     }
     
     .close-btn:hover {
       color: var(--dark);
       background-color: #f1f5f9;
-      border-radius: 50%;
     }
     
     .checkout-modal {
@@ -304,47 +439,100 @@
     .checkout-content {
       background: white;
       width: 90%;
-      max-width: 450px;
-      border-radius: 12px;
-      padding: 2rem;
+      max-width: 500px;
+      border-radius: 16px;
+      padding: 2.5rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      position: relative;
+    }
+    
+    .checkout-content::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(to right, #10b981, #0ea5e9);
     }
     
     .checkout-content h2 {
       color: var(--primary-dark);
-      margin-bottom: 1.2rem;
+      margin-bottom: 1.5rem;
       text-align: center;
+      font-size: 1.6rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    
+    .checkout-content h2::before {
+      content: "📱";
       font-size: 1.4rem;
     }
     
     input {
       width: 100%;
-      padding: 0.9rem;
-      margin: 0.7rem 0;
+      padding: 1rem;
+      margin: 0.8rem 0;
       border: 2px solid #cbd5e1;
-      border-radius: 8px;
-      font-size: 0.95rem;
+      border-radius: 10px;
+      font-size: 1rem;
+      transition: all 0.3s;
     }
     
     input:focus {
       outline: none;
       border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.2);
     }
     
     .loading {
       text-align: center;
-      padding: 2.5rem;
-      font-size: 1.1rem;
+      padding: 3rem;
+      font-size: 1.2rem;
       color: var(--gray);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    .loading::before {
+      content: "🔄";
+      font-size: 2.5rem;
+      animation: spin 2s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
     
     .error-message {
       background-color: #fef2f2;
       color: #b91c1c;
       padding: 1.5rem;
-      border-radius: 8px;
-      margin: 1rem 0;
+      border-radius: 12px;
+      margin: 1.5rem 0;
       font-size: 0.95rem;
-      line-height: 1.5;
+      line-height: 1.6;
+      border-left: 4px solid #ef4444;
+      position: relative;
+    }
+    
+    .error-message::before {
+      content: "⚠️";
+      position: absolute;
+      left: 15px;
+      top: 15px;
+      font-size: 1.5rem;
+    }
+    
+    .error-message p {
+      margin-top: 10px;
+      padding-left: 30px;
     }
     
     .success-modal {
@@ -363,47 +551,88 @@
     .success-content {
       background: white;
       width: 90%;
-      max-width: 450px;
-      border-radius: 12px;
-      padding: 2.5rem;
+      max-width: 500px;
+      border-radius: 16px;
+      padding: 2.8rem;
       text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      position: relative;
+    }
+    
+    .success-content::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(to right, #10b981, #0ea5e9);
     }
     
     .success-icon {
-      font-size: 3.5rem;
+      font-size: 4.5rem;
       color: var(--success);
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     
     .success-content h2 {
       color: var(--primary-dark);
-      margin-bottom: 1rem;
-      font-size: 1.5rem;
+      margin-bottom: 1.2rem;
+      font-size: 1.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    
+    .success-content h2::before {
+      content: "✅";
+      font-size: 1.6rem;
     }
     
     .success-message {
       color: var(--gray);
-      margin-bottom: 1.5rem;
-      line-height: 1.6;
+      margin-bottom: 1.8rem;
+      line-height: 1.7;
       text-align: left;
-      font-family: monospace;
+      font-family: 'Segoe UI', sans-serif;
       background-color: #f8fafc;
-      padding: 1.2rem;
-      border-radius: 8px;
-      max-height: 60vh;
+      padding: 1.5rem;
+      border-radius: 12px;
+      max-height: 65vh;
       overflow-y: auto;
+      font-size: 1.05rem;
+      border: 1px solid #e2e8f0;
+    }
+    
+    .success-message strong {
+      color: var(--primary-dark);
+      font-weight: 600;
     }
     
     .success-btn {
-      background-color: var(--primary);
+      background: linear-gradient(to right, var(--primary), var(--primary-dark));
       color: white;
       border: none;
-      padding: 0.9rem;
-      border-radius: 8px;
+      padding: 1rem;
+      border-radius: 10px;
       width: 100%;
-      font-size: 1rem;
+      font-size: 1.1rem;
       font-weight: bold;
       cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 4px 15px rgba(30, 58, 138, 0.3);
+    }
+    
+    .success-btn:hover {
+      background: linear-gradient(to right, #1d4ed8, #1e40af);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(30, 58, 138, 0.4);
     }
     
     @media (max-width: 768px) {
@@ -412,28 +641,36 @@
       }
       
       .header {
-        padding: 1rem;
+        padding: 1.2rem;
       }
       
       .logo {
-        font-size: 1.5rem;
+        font-size: 1.6rem;
+        gap: 6px;
       }
       
       .cart-icon {
-        width: 50px;
-        height: 50px;
+        width: 55px;
+        height: 55px;
         font-size: 1.3rem;
       }
       
       .container {
         padding: 0 1rem;
       }
+      
+      .cart-total {
+        font-size: 1.5rem;
+      }
     }
   </style>
 </head>
 <body>
   <header class="header">
-    <div class="logo">PROCURE SHOP</div>
+    <div class="logo">
+      <span class="logo-icon">🛒</span>
+      <span>PROCURE SHOP</span>
+    </div>
   </header>
 
   <div class="container">
@@ -468,8 +705,8 @@
     <div class="checkout-content">
       <button class="close-btn" onclick="closeCheckout()">×</button>
       <h2>Finaliser la commande</h2>
-      <input type="text" id="customer-name" placeholder="Nom complet *" required>
-      <input type="tel" id="customer-phone" placeholder="Numéro WhatsApp (ex: 22890393720) *" required>
+      <input type="text" id="customer-name" placeholder="Nom complet ou Praesidium *" required>
+      <input type="tel" id="customer-phone" placeholder="Numéro WhatsApp (ex: 22890000000) *" required>
       <div class="cart-total">Total à payer: <span id="checkout-total">0</span> FCFA</div>
       <button class="checkout-btn" onclick="sendOrder()">Confirmer la commande</button>
     </div>
@@ -477,7 +714,7 @@
 
   <div class="success-modal" id="success-modal">
     <div class="success-content">
-      <div class="success-icon">✓</div>
+      <div class="success-icon">✅</div>
       <h2>Commande confirmée</h2>
       <p class="success-message" id="success-message"></p>
       <button class="success-btn" onclick="closeSuccess()">Fermer</button>
@@ -488,7 +725,7 @@
     // 🔑 COLLEZ VOTRE URL GOOGLE SHEET ICI (exemple format correct)
     const GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRO9Ylv3GrLJI6OtTQu5sC9MY2-2IdZ-G-uxltTBbVnQ9L8ztg_LGtK-HSrRbnIeYlu21j29-FhF9Cw/pub?gid=0&single=true&output=csv";
     
-    // 🔑 METTEZ VOTRE NUMÉRO WHATSAPP ICI (format: 22890393720)
+    // 🔑 METTEZ VOTRE NUMÉRO WHATSAPP ICI (format: 22890000000)
     const YOUR_WHATSAPP_NUMBER = "22890393720";
     
     let articles = [];
@@ -511,27 +748,30 @@
       // Chercher les colonnes nécessaires (tolérant aux accents et majuscules)
       const catCol = headers.findIndex(h => 
         h.toLowerCase().includes('categorie') || 
+        h.toLowerCase().includes('catégorie') || 
         h.toLowerCase().includes('category')
       );
       
       const nameCol = headers.findIndex(h => 
         h.toLowerCase().includes('article') || 
         h.toLowerCase().includes('nom') ||
-        h.toLowerCase().includes('name')
+        h.toLowerCase().includes('name') ||
+        h.toLowerCase().includes('produit')
       );
       
       const priceCol = headers.findIndex(h => 
         h.toLowerCase().includes('prix') || 
-        h.toLowerCase().includes('price')
+        h.toLowerCase().includes('price') ||
+        h.toLowerCase().includes('montant')
       );
       
       // Vérification des colonnes
       if (catCol === -1 || nameCol === -1 || priceCol === -1) {
         let errorMsg = 'Colonnes requises non trouvées.<br><br>';
         errorMsg += 'Votre Google Sheet doit avoir ces 3 colonnes (dans l\'ordre) :<br>';
-        errorMsg += '<strong>1. Catégorie</strong><br>';
-        errorMsg += '<strong>2. Article</strong><br>';
-        errorMsg += '<strong>3. Prix</strong><br><br>';
+        errorMsg += '<strong>1. Catégorie</strong> (peut être "Categorie" sans accent)<br>';
+        errorMsg += '<strong>2. Article</strong> (peut être "Produit")<br>';
+        errorMsg += '<strong>3. Prix</strong> (peut être "Montant")<br><br>';
         errorMsg += 'Colonnes détectées :<br>' + headers.map((h, i) => `${i+1}. ${h}`).join('<br>');
         showError(errorMsg);
         return;
@@ -655,7 +895,7 @@
           <div class="article-category">${article.category}</div>
           <div class="article-name">${article.name}</div>
           <div class="article-price">${article.price.toLocaleString()} FCFA</div>
-          <button class="add-to-cart" onclick="addToCart(${article.id})">Ajouter au panier</button>
+          <button class="add-to-cart" onclick="addToCart(${article.id})">Ajouter au panier 🛒</button>
         `;
         container.appendChild(card);
       });
@@ -690,7 +930,16 @@
       saveCart();
       updateCart();
       
-      alert('Article ajouté au panier');
+      // Animation de confirmation
+      const card = document.querySelector(`.article-card:nth-of-type(${article.id})`);
+      if (card) {
+        card.style.animation = 'none';
+        setTimeout(() => {
+          card.style.animation = 'pulse 0.5s';
+        }, 10);
+      }
+      
+      alert('Article ajouté au panier !');
     }
 
     // Mettre à jour le panier
@@ -789,16 +1038,16 @@
         return;
       }
       
-      // Message pour le client (sans emojis, propre)
+      // Message pour le client (avec emojis WhatsApp compatibles)
       let clientMessage = `Bonjour ${name},\n\n`;
-      clientMessage += `Votre commande PROCURE SHOP a ete confirmee.\n\n`;
-      clientMessage += `Articles :\n`;
+      clientMessage += `✅ Votre commande PROCURE SHOP a été confirmée !\n\n`;
+      clientMessage += `📦 Articles commandés :\n`;
       
       cart.forEach(item => {
-        clientMessage += `- ${item.name} x ${item.quantity}\n`;
+        clientMessage += `• ${item.name} x ${item.quantity}\n`;
       });
       
-      clientMessage += `\nTotal : ${total.toLocaleString()} FCFA\n\n`;
+      clientMessage += `\n💰 Total : ${total.toLocaleString()} FCFA\n\n`;
       clientMessage += `Merci pour votre confiance. Nous vous contacterons pour la livraison.`;
       
       // Ouvrir WhatsApp pour le client
@@ -812,10 +1061,10 @@
       orderDetails += `ARTICLES :\n`;
       
       cart.forEach(item => {
-        orderDetails += `- ${item.name} x ${item.quantity} = ${(item.price * item.quantity).toLocaleString()} FCFA\n`;
+        orderDetails += `• ${item.name} x ${item.quantity} = ${(item.price * item.quantity).toLocaleString()} FCFA\n`;
       });
       
-      orderDetails += `\nTOTAL : ${total.toLocaleString()} FCFA`;
+      orderDetails += `\n💰 TOTAL : ${total.toLocaleString()} FCFA`;
       
       // Afficher confirmation
       document.getElementById('success-message').textContent = orderDetails;
