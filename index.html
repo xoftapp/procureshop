@@ -495,29 +495,6 @@
       border: 1px solid #e2e8f0;
     }
     
-    .telegram-btn {
-      background: #0088cc;
-      color: white;
-      border: none;
-      padding: 0.9rem;
-      border-radius: 10px;
-      width: 100%;
-      font-size: 1.05rem;
-      font-weight: bold;
-      cursor: pointer;
-      margin: 1rem 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      transition: all 0.3s;
-    }
-    
-    .telegram-btn:hover {
-      background: #0077b5;
-      transform: translateY(-2px);
-    }
-    
     .close-success-btn {
       background: var(--primary);
       color: white;
@@ -614,9 +591,6 @@
       <div class="success-icon">✓</div>
       <h2>Commande confirmée</h2>
       <p class="success-message" id="success-message"></p>
-      <button class="telegram-btn" onclick="openTelegram()">
-        <span>📱</span> Contacter le vendeur sur Telegram
-      </button>
       <button class="close-success-btn" onclick="closeSuccess()">Fermer</button>
     </div>
   </div>
@@ -627,9 +601,12 @@
     const EMAILJS_TEMPLATE_ID = "template_byfggzp"; // ID de votre template (à remplacer)
     const EMAILJS_PUBLIC_KEY = "hRR6CDewTcZqglabv"; // Votre Public Key EmailJS (à remplacer)
     
+    // 🔑 Configuration Telegram (À MODIFIER APRÈS CRÉATION)
+    const TELEGRAM_BOT_TOKEN = "5663230799:AAEQEiV73u7cJ8IUb2mwqthlKWEf67jephY"; // Token du bot Telegram
+    const TELEGRAM_CHAT_ID = "724632734"; // ID de votre chat Telegram
+    
     // 🔑 Configuration application
     const GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRO9Ylv3GrLJI6OtTQu5sC9MY2-2IdZ-G-uxltTBbVnQ9L8ztg_LGtK-HSrRbnIeYlu21j29-FhF9Cw/pub?gid=0&single=true&output=csv";
-    const SELLER_TELEGRAM = "davhid"; // Votre identifiant Telegram
     
     let articles = [];
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -763,8 +740,7 @@
       
       saveCart();
       updateCart();
-      setTimeout(() => alert('Article ajouté au panier avec succès !'), 100);
-    }
+      setTimeout(() => alert('Article ajouté au panier avec succès !'), 1    }
 
     function updateCart() {
       document.getElementById('cart-count').textContent = cart.reduce((s, i) => s + i.quantity, 0);
@@ -837,10 +813,6 @@
       updateCart();
     }
 
-    function openTelegram() {
-      window.open(`https://t.me/${SELLER_TELEGRAM}`, '_blank');
-    }
-
     async function sendOrder() {
       const name = document.getElementById('customer-name').value.trim();
       const phone = document.getElementById('customer-phone').value.trim();
@@ -873,7 +845,20 @@
       
       window.open(`https://wa.me/${phone.replace(/\D/g, '')}?text=${encodeURIComponent(clientMessage)}`, '_blank');
       
-      // 3. Préparer écran de confirmation
+      // 3. Envoyer notification TELEGRAM au vendeur
+      const telegramMessage = `Nouvelle commande :\nClient : ${name}\nWhatsApp : ${phone}\nTotal : ${total.toLocaleString()} FCFA\n\nArticles :\n${cart.map(i => `- ${i.name} x ${i.quantity}`).join('\n')}`;
+      
+      try {
+        const telegramUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&text=${encodeURIComponent(telegramMessage)}`;
+        await fetch(telegramUrl).then(response => {
+          if (!response.ok) throw new Error('Erreur Telegram');
+        });
+      } catch (error) {
+        console.error('Erreur Telegram:', error);
+        // Ne pas bloquer le client si Telegram échoue
+      }
+      
+      // 4. Préparer écran de confirmation
       let orderDetails = `Client : ${name}\n`;
       orderDetails += `WhatsApp : ${phone}\n\n`;
       orderDetails += `Articles :\n`;
@@ -886,12 +871,12 @@
       document.getElementById('success-modal').style.display = 'flex';
       closeCheckout();
       
-      // 4. Message de confirmation simple
+      // 5. Message de confirmation simple
       setTimeout(() => {
         alert('Commande confirmee ! Merci pour votre confiance.');
       }, 100);
       
-      // 5. Vider le panier
+      // 6. Vider le panier
       cart = [];
       saveCart();
       updateCart();
