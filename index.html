@@ -965,7 +965,7 @@
       }
       
       // 2. Envoyer message WhatsApp au CLIENT
-      const clientMessage = `Bonjour ${name},\n\nMerci pour votre commande chez PROCURE SHOP !\n\nRappel de votre commande :\n${cart.map(i => `- ${i.name} x ${i.quantity}`).join('\n')}\n\nTotal : ${total.toLocaleString()} FCFA\n\nVotre commande est en cours de preparation. Nous vous contacterons des que celle-ci sera prete pour la livraison.\n\nA tres bientot !`;
+      const clientMessage = `Bonjour ${name},\n\nMerci pour votre commande à la PROCURE SHOP !\n\nRappel de votre commande :\n${cart.map(i => `- ${i.name} x ${i.quantity}`).join('\n')}\n\nTotal : ${total.toLocaleString()} FCFA\n\nVotre commande est en cours de preparation. Nous vous contacterons des que celle-ci sera prête pour la livraison.\n\nA très bientôt !`;
       
       window.open(`https://wa.me/${phone.replace(/\D/g, '')}?text=${encodeURIComponent(clientMessage)}`, '_blank');
       
@@ -997,7 +997,7 @@
       
       // 5. Message de confirmation simple
       setTimeout(() => {
-        alert('Commande confirmee ! Merci pour votre confiance.');
+        alert('Commande confirmée ! Merci pour votre confiance.');
       }, 100);
       
       // 6. Vider le panier
