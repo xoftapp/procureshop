@@ -418,11 +418,36 @@
       box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.2);
     }
     
+    .input-error {
+      border-color: #ef4444 !important;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
+    }
+    
+    .error-hint {
+      color: #ef4444;
+      font-size: 0.85rem;
+      margin-top: -0.5rem;
+      margin-bottom: 0.5rem;
+      padding-left: 0.5rem;
+      display: none;
+    }
+    
     .loading {
       text-align: center;
       padding: 3rem;
       font-size: 1.2rem;
       color: var(--gray);
+    }
+    
+    .loading-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
     
     .error-message {
@@ -434,6 +459,24 @@
       font-size: 0.95rem;
       line-height: 1.6;
       border-left: 4px solid #ef4444;
+    }
+    
+    .error-message h3 {
+      margin-bottom: 0.5rem;
+      color: #b91c1c;
+    }
+    
+    .error-message p {
+      margin: 0.5rem 0;
+    }
+    
+    .error-message ul {
+      margin: 0.5rem 0;
+      padding-left: 20px;
+    }
+    
+    .error-message li {
+      margin: 0.3rem 0;
     }
     
     .success-modal {
@@ -556,7 +599,10 @@
     </div>
 
     <div class="articles-grid" id="articles-container">
-      <div class="loading">Chargement des articles...</div>
+      <div class="loading">
+        <div class="loading-icon">🔄</div>
+        <div>Chargement des articles...</div>
+      </div>
     </div>
   </div>
 
@@ -580,7 +626,8 @@
       <button class="close-btn" onclick="closeCheckout()">×</button>
       <h2>Vérification</h2>
       <input type="text" id="customer-name" placeholder="Nom complet *" required>
-      <input type="tel" id="customer-phone" placeholder="Numéro WhatsApp (ex: 22890393720) *" required>
+      <input type="tel" id="customer-phone" placeholder="Numéro WhatsApp avec indicatif pays (ex: 22890393720) *" required>
+      <div class="error-hint" id="phone-error">Le numéro doit commencer par l'indicatif pays (ex: 228, 221, 225, etc.)</div>
       <div class="cart-total">Total à payer: <span id="checkout-total">0</span> FCFA</div>
       <button class="checkout-btn" onclick="sendOrder()">Confirmer la commande</button>
     </div>
@@ -613,19 +660,46 @@
     let categories = new Set();
 
     // Initialiser EmailJS
-    emailjs.init(EMAILJS_PUBLIC_KEY);
+    try {
+      emailjs.init(EMAILJS_PUBLIC_KEY);
+    } catch (error) {
+      console.error('Erreur initialisation EmailJS:', error);
+    }
 
-    // Charger les articles
+    // Charger les articles avec gestion d'erreur robuste
     async function loadArticles() {
+      const container = document.getElementById('articles-container');
+      
       try {
-        const response = await fetch(GOOGLE_SHEET_URL);
-        if (!response.ok) throw new Error('Erreur chargement Google Sheet');
+        // Timeout de 10 secondes
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+        
+        const response = await fetch(GOOGLE_SHEET_URL, { signal: controller.signal });
+        clearTimeout(timeoutId);
+        
+        if (!response.ok) {
+          throw new Error(`Erreur HTTP: ${response.status}`);
+        }
+        
         const csvText = await response.text();
         parseCSV(csvText);
       } catch (error) {
-        document.getElementById('articles-container').innerHTML = 
-          `<div class="error-message">Erreur de chargement des articles. Vérifiez votre connexion internet.</div>`;
-        console.error('Erreur:', error);
+        console.error('Erreur chargement articles:', error);
+        
+        let errorMsg = '<div class="error-message">';
+        errorMsg += '<h3>Erreur de chargement</h3>';
+        errorMsg += '<p>Impossible de charger la liste des articles.</p>';
+        errorMsg += '<p>Vérifiez que :</p>';
+        errorMsg += '<ul>';
+        errorMsg += '<li>Votre Google Sheet est publié en mode "public"</li>';
+        errorMsg += '<li>La structure du tableau est correcte (Catégorie, Article, Prix)</li>';
+        errorMsg += '<li>Votre connexion internet est active</li>';
+        errorMsg += '</ul>';
+        errorMsg += '<p><strong>URL utilisée :</strong><br>' + GOOGLE_SHEET_URL.substring(0, 80) + '...</p>';
+        errorMsg += '</div>';
+        
+        container.innerHTML = errorMsg;
       }
     }
 
@@ -633,7 +707,7 @@
     function parseCSV(csvText) {
       const lines = csvText.trim().split(/\r?\n/);
       if (lines.length < 2) {
-        showError('Fichier vide');
+        showError('Fichier vide ou mal formaté');
         return;
       }
       
@@ -693,7 +767,7 @@
 
     function showError(message) {
       document.getElementById('articles-container').innerHTML = 
-        `<div class="error-message">${message}</div>`;
+        `<div class="error-message"><h3>Erreur</h3><p>${message}</p></div>`;
     }
 
     function displayCategories() {
@@ -740,7 +814,8 @@
       
       saveCart();
       updateCart();
-      setTimeout(() => alert('Article ajouté au panier avec succès !'), 1    }
+      setTimeout(() => alert('Article ajouté au panier avec succès !'), 100);
+    }
 
     function updateCart() {
       document.getElementById('cart-count').textContent = cart.reduce((s, i) => s + i.quantity, 0);
@@ -800,6 +875,10 @@
       }
       closeCart();
       document.getElementById('checkout-modal').style.display = 'flex';
+      
+      // Réinitialiser les erreurs
+      document.getElementById('customer-phone').classList.remove('input-error');
+      document.getElementById('phone-error').style.display = 'none';
     }
     
     function closeCheckout() {
@@ -813,15 +892,60 @@
       updateCart();
     }
 
+    // Vérifier si le numéro commence par un indicatif pays valide
+    function isValidPhoneNumber(phone) {
+      // Liste des indicatifs pays courants pour l'Afrique de l'Ouest
+      const validPrefixes = [
+        '228', // Togo
+        '221', // Sénégal
+        '225', // Côte d'Ivoire
+        '226', // Burkina Faso
+        '223', // Mali
+        '224', // Guinée
+        '222', // Mauritanie
+        '229', // Bénin
+        '227', // Niger
+        '233', // Ghana
+        '234'  // Nigeria
+      ];
+      
+      const cleanPhone = phone.replace(/\D/g, '');
+      
+      // Vérifier que le numéro commence par un indicatif valide
+      return validPrefixes.some(prefix => cleanPhone.startsWith(prefix));
+    }
+
     async function sendOrder() {
       const name = document.getElementById('customer-name').value.trim();
-      const phone = document.getElementById('customer-phone').value.trim();
+      const phoneInput = document.getElementById('customer-phone');
+      const phone = phoneInput.value.trim();
       const total = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
       
-      if (!name || !phone) {
-        setTimeout(() => alert('Veuillez remplir tous les champs'), 100);
+      // Validation du nom
+      if (!name) {
+        setTimeout(() => alert('Veuillez entrer votre nom complet'), 100);
         return;
       }
+      
+      // Validation du numéro de téléphone
+      if (!phone) {
+        setTimeout(() => alert('Veuillez entrer votre numéro WhatsApp'), 100);
+        return;
+      }
+      
+      // Validation de l'indicatif pays
+      if (!isValidPhoneNumber(phone)) {
+        phoneInput.classList.add('input-error');
+        document.getElementById('phone-error').style.display = 'block';
+        setTimeout(() => {
+          alert('Le numéro de téléphone doit commencer par l\'indicatif pays (ex: 228 pour le Togo, 221 pour le Sénégal, etc.)');
+        }, 100);
+        return;
+      }
+      
+      // Réinitialiser l'erreur si validation réussie
+      phoneInput.classList.remove('input-error');
+      document.getElementById('phone-error').style.display = 'none';
       
       // 1. Envoyer notification EMAIL au vendeur via EmailJS
       try {
@@ -888,14 +1012,12 @@
       if (event.target.id === 'success-modal') closeSuccess();
     }
 
-    window.onload = () => {
-      loadArticles();
-      
-      // Message de bienvenue discret
+    // Chargement initial avec délai pour éviter les conflits
+    document.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
-        console.log('✨ PROCURE SHOP - Plateforme de vente optimisée');
-      }, 1000);
-    };
+        loadArticles();
+      }, 500);
+    });
   </script>
 </body>
 </html>
