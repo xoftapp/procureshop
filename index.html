@@ -4,23 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PROCURE SHOP</title>
-  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
   <style>
     :root {
       --primary: #1e3a8a;
       --primary-dark: #1e40af;
-      --light: #f8fafc;
       --dark: #0f172a;
       --success: #10b981;
       --gray: #64748b;
     }
-    
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(135deg, #f0f4ff 0%, #e6f0ff 100%);
@@ -29,17 +21,13 @@
       padding-bottom: 80px;
       min-height: 100vh;
     }
-    
     .header {
       background: linear-gradient(to right, var(--primary), #1d4ed8);
       color: white;
       padding: 1.4rem 1.5rem;
       text-align: center;
       box-shadow: 0 4px 15px rgba(30, 58, 138, 0.2);
-      position: relative;
-      overflow: hidden;
     }
-    
     .logo {
       font-size: 1.9rem;
       font-weight: 700;
@@ -47,20 +35,9 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
-      position: relative;
-      z-index: 2;
     }
-    
-    .logo-icon {
-      font-size: 1.8rem;
-    }
-    
-    .container {
-      max-width: 1000px;
-      margin: 2rem auto;
-      padding: 0 1.5rem;
-    }
-    
+    .logo-icon { font-size: 1.8rem; }
+    .container { max-width: 1000px; margin: 2rem auto; padding: 0 1.5rem; }
     .filter-section {
       background: white;
       padding: 1.3rem;
@@ -69,13 +46,7 @@
       box-shadow: 0 4px 15px rgba(0,0,0,0.08);
       border-top: 4px solid var(--primary);
     }
-    
-    .filter-section h3 {
-      margin-bottom: 0.8rem;
-      color: var(--primary-dark);
-      font-size: 1.2rem;
-    }
-    
+    .filter-section h3 { margin-bottom: 0.8rem; color: var(--primary-dark); font-size: 1.2rem; }
     select {
       padding: 0.8rem 1rem;
       border: 2px solid #cbd5e1;
@@ -85,21 +56,13 @@
       max-width: 300px;
       background-color: white;
       font-weight: 500;
-      transition: all 0.3s;
     }
-    
-    select:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.2);
-    }
-    
+    select:focus { outline: none; border-color: var(--primary); }
     .articles-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 1.5rem;
     }
-    
     .article-card {
       background: white;
       border-radius: 12px;
@@ -110,23 +73,17 @@
       position: relative;
       overflow: hidden;
     }
-    
     .article-card::before {
       content: "";
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 4px;
+      top: 0; left: 0;
+      width: 100%; height: 4px;
       background: linear-gradient(to right, #10b981, #0ea5e9);
     }
-    
     .article-card:hover {
       transform: translateY(-5px);
       box-shadow: 0 8px 25px rgba(30, 58, 138, 0.15);
-      border-left: 4px solid #0ea5e9;
     }
-    
     .article-category {
       font-size: 0.85rem;
       color: var(--gray);
@@ -135,22 +92,8 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
-    
-    .article-name {
-      font-weight: 600;
-      font-size: 1.15rem;
-      margin-bottom: 0.7rem;
-      color: var(--dark);
-      line-height: 1.3;
-    }
-    
-    .article-price {
-      color: var(--primary-dark);
-      font-weight: bold;
-      font-size: 1.4rem;
-      margin-bottom: 1rem;
-    }
-    
+    .article-name { font-weight: 600; font-size: 1.15rem; margin-bottom: 0.7rem; }
+    .article-price { color: var(--primary-dark); font-weight: bold; font-size: 1.4rem; margin-bottom: 1rem; }
     .add-to-cart {
       background: linear-gradient(to right, var(--primary), var(--primary-dark));
       color: white;
@@ -164,21 +107,16 @@
       transition: all 0.3s;
       box-shadow: 0 2px 8px rgba(30, 58, 138, 0.3);
     }
-    
     .add-to-cart:hover {
-      background: linear-gradient(to right, #1d4ed8, #1e40af);
       transform: translateY(-2px);
       box-shadow: 0 4px 12px rgba(30, 58, 138, 0.4);
     }
-    
     .cart-icon {
       position: fixed;
-      bottom: 1.8rem;
-      right: 1.8rem;
+      bottom: 1.8rem; right: 1.8rem;
       background: linear-gradient(to right, var(--primary), var(--primary-dark));
       color: white;
-      width: 60px;
-      height: 60px;
+      width: 60px; height: 60px;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -187,24 +125,19 @@
       cursor: pointer;
       box-shadow: 0 6px 15px rgba(30, 58, 138, 0.4);
       z-index: 100;
-      transition: all 0.3s;
       animation: pulse 2s infinite;
     }
-    
     @keyframes pulse {
       0% { box-shadow: 0 0 0 0 rgba(30, 58, 138, 0.4); }
       70% { box-shadow: 0 0 0 12px rgba(30, 58, 138, 0); }
       100% { box-shadow: 0 0 0 0 rgba(30, 58, 138, 0); }
     }
-    
     .cart-count {
       position: absolute;
-      top: -8px;
-      right: -8px;
+      top: -8px; right: -8px;
       background-color: #ef4444;
       color: white;
-      width: 26px;
-      height: 26px;
+      width: 26px; height: 26px;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -213,21 +146,17 @@
       font-weight: bold;
       border: 2px solid white;
     }
-    
-    .cart-modal {
+    .cart-modal, .checkout-modal, .success-modal {
       display: none;
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       background-color: rgba(0,0,0,0.6);
       z-index: 1000;
       justify-content: center;
       align-items: center;
     }
-    
-    .cart-content {
+    .cart-content, .checkout-content, .success-content {
       background: white;
       width: 90%;
       max-width: 550px;
@@ -238,17 +167,14 @@
       box-shadow: 0 10px 30px rgba(0,0,0,0.2);
       position: relative;
     }
-    
-    .cart-content::before {
+    .checkout-content, .success-content { max-width: 500px; text-align: center; }
+    .cart-content::before, .checkout-content::before, .success-content::before {
       content: "";
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 4px;
+      top: 0; left: 0;
+      width: 100%; height: 4px;
       background: linear-gradient(to right, #10b981, #0ea5e9);
     }
-    
     .cart-item {
       display: flex;
       justify-content: space-between;
@@ -256,61 +182,29 @@
       padding: 1rem 0;
       border-bottom: 1px solid #e2e8f0;
     }
-    
-    .cart-item-info {
-      flex: 1;
-    }
-    
-    .cart-item-name {
-      font-weight: 600;
-      font-size: 1rem;
-    }
-    
-    .cart-item-price {
-      color: var(--primary-dark);
-      font-weight: bold;
-      font-size: 1rem;
-    }
-    
-    .quantity-controls {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-left: 15px;
-    }
-    
+    .cart-item-info { flex: 1; }
+    .cart-item-name { font-weight: 600; font-size: 1rem; }
+    .cart-item-price { color: var(--primary-dark); font-weight: bold; font-size: 1rem; }
+    .quantity-controls { display: flex; align-items: center; gap: 10px; margin-left: 15px; }
     .quantity-btn {
-      width: 32px;
-      height: 32px;
+      width: 32px; height: 32px;
       background-color: var(--primary);
       color: white;
       border: none;
       border-radius: 50%;
       cursor: pointer;
       font-size: 1.2rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
     }
-    
-    .quantity-btn:hover {
-      background-color: var(--primary-dark);
-      transform: scale(1.1);
-    }
-    
     .quantity-display {
       min-width: 32px;
       text-align: center;
       font-weight: bold;
-      font-size: 1rem;
       background: #f1f5f9;
       padding: 4px 8px;
       border-radius: 8px;
     }
-    
     .cart-total {
-      font-size: 1.7rem;
+      font-size: 1.6rem;
       font-weight: bold;
       color: var(--primary-dark);
       margin: 1.5rem 0;
@@ -318,7 +212,6 @@
       padding-top: 1.2rem;
       border-top: 3px double #e2e8f0;
     }
-    
     .checkout-btn {
       background: linear-gradient(to right, var(--success), #0d9488);
       color: white;
@@ -330,16 +223,7 @@
       font-weight: bold;
       cursor: pointer;
       margin-top: 1.2rem;
-      transition: all 0.3s;
-      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
     }
-    
-    .checkout-btn:hover {
-      background: linear-gradient(to right, #0da271, #0c8c7a);
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
-    }
-    
     .close-btn {
       float: right;
       background: none;
@@ -347,61 +231,14 @@
       font-size: 1.8rem;
       cursor: pointer;
       color: var(--gray);
-      padding: 0;
-      width: 35px;
-      height: 35px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width: 35px; height: 35px;
       border-radius: 50%;
-      transition: all 0.2s;
     }
-    
-    .close-btn:hover {
-      color: var(--dark);
-      background-color: #f1f5f9;
-    }
-    
-    .checkout-modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0,0,0,0.6);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-    }
-    
-    .checkout-content {
-      background: white;
-      width: 90%;
-      max-width: 500px;
-      border-radius: 16px;
-      padding: 2.5rem;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-      position: relative;
-    }
-    
-    .checkout-content::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 4px;
-      background: linear-gradient(to right, #10b981, #0ea5e9);
-    }
-    
-    .checkout-content h2 {
+    .checkout-content h2, .success-content h2 {
       color: var(--primary-dark);
       margin-bottom: 1.5rem;
-      text-align: center;
       font-size: 1.6rem;
     }
-    
     input {
       width: 100%;
       padding: 1rem;
@@ -409,47 +246,19 @@
       border: 2px solid #cbd5e1;
       border-radius: 10px;
       font-size: 1rem;
-      transition: all 0.3s;
+      text-align: left;
     }
-    
-    input:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.2);
-    }
-    
-    .input-error {
-      border-color: #ef4444 !important;
-      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
-    }
-    
+    input:focus { outline: none; border-color: var(--primary); }
+    .input-error { border-color: #ef4444 !important; }
     .error-hint {
       color: #ef4444;
       font-size: 0.85rem;
       margin-top: -0.5rem;
       margin-bottom: 0.5rem;
-      padding-left: 0.5rem;
       display: none;
+      text-align: left;
     }
-    
-    .loading {
-      text-align: center;
-      padding: 3rem;
-      font-size: 1.2rem;
-      color: var(--gray);
-    }
-    
-    .loading-icon {
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
-      animation: spin 1s linear infinite;
-    }
-    
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    
+    .loading { text-align: center; padding: 3rem; font-size: 1.2rem; color: var(--gray); }
     .error-message {
       background-color: #fef2f2;
       color: #b91c1c;
@@ -459,71 +268,9 @@
       font-size: 0.95rem;
       line-height: 1.6;
       border-left: 4px solid #ef4444;
+      text-align: left;
     }
-    
-    .error-message h3 {
-      margin-bottom: 0.5rem;
-      color: #b91c1c;
-    }
-    
-    .error-message p {
-      margin: 0.5rem 0;
-    }
-    
-    .error-message ul {
-      margin: 0.5rem 0;
-      padding-left: 20px;
-    }
-    
-    .error-message li {
-      margin: 0.3rem 0;
-    }
-    
-    .success-modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0,0,0,0.6);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-    }
-    
-    .success-content {
-      background: white;
-      width: 90%;
-      max-width: 500px;
-      border-radius: 16px;
-      padding: 2.5rem;
-      text-align: center;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    }
-    
-    .success-content::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 4px;
-      background: linear-gradient(to right, #10b981, #0ea5e9);
-    }
-    
-    .success-icon {
-      font-size: 4rem;
-      color: var(--success);
-      margin-bottom: 1.2rem;
-    }
-    
-    .success-content h2 {
-      color: var(--primary-dark);
-      margin-bottom: 1rem;
-      font-size: 1.8rem;
-    }
-    
+    .success-icon { font-size: 4rem; color: var(--success); margin-bottom: 1rem; }
     .success-message {
       color: var(--gray);
       margin: 1.5rem 0;
@@ -532,12 +279,12 @@
       background-color: #f8fafc;
       padding: 1.5rem;
       border-radius: 12px;
-      max-height: 60vh;
+      max-height: 50vh;
       overflow-y: auto;
-      font-size: 1.05rem;
+      font-size: 1rem;
       border: 1px solid #e2e8f0;
+      white-space: pre-line;
     }
-    
     .close-success-btn {
       background: var(--primary);
       color: white;
@@ -548,37 +295,12 @@
       font-size: 1.05rem;
       font-weight: bold;
       cursor: pointer;
-      margin-top: 0.5rem;
-      transition: all 0.3s;
     }
-    
-    .close-success-btn:hover {
-      background: var(--primary-dark);
-    }
-    
     @media (max-width: 768px) {
-      .articles-grid {
-        grid-template-columns: 1fr;
-      }
-      
-      .header {
-        padding: 1.2rem;
-      }
-      
-      .logo {
-        font-size: 1.6rem;
-        gap: 6px;
-      }
-      
-      .cart-icon {
-        width: 55px;
-        height: 55px;
-        font-size: 1.3rem;
-      }
-      
-      .container {
-        padding: 0 1rem;
-      }
+      .articles-grid { grid-template-columns: 1fr; }
+      .logo { font-size: 1.6rem; }
+      .cart-icon { width: 55px; height: 55px; font-size: 1.3rem; }
+      .container { padding: 0 1rem; }
     }
   </style>
 </head>
@@ -597,12 +319,8 @@
         <option value="all">Toutes les catégories</option>
       </select>
     </div>
-
     <div class="articles-grid" id="articles-container">
-      <div class="loading">
-        <div class="loading-icon">🔄</div>
-        <div>Chargement des articles...</div>
-      </div>
+      <div class="loading">Chargement des articles...</div>
     </div>
   </div>
 
@@ -625,9 +343,9 @@
     <div class="checkout-content">
       <button class="close-btn" onclick="closeCheckout()">×</button>
       <h2>Vérification</h2>
-      <input type="text" id="customer-name" placeholder="Nom ou Praesidium *" required>
-      <input type="tel" id="customer-phone" placeholder="N° WhatsApp avec indicatif (ex: 22890393720) *" required>
-      <div class="error-hint" id="phone-error">Le numéro doit commencer par l'indicatif du pays (ex: 228, 221, 225, etc.)</div>
+      <input type="text" id="customer-name" placeholder="Nom complet *" required>
+      <input type="tel" id="customer-phone" placeholder="Numéro WhatsApp avec indicatif (ex: 22890393720) *" required>
+      <div class="error-hint" id="phone-error">Le numéro doit commencer par l'indicatif du pays (ex: 228, 221, 225...)</div>
       <div class="cart-total">Total à payer: <span id="checkout-total">0</span> FCFA</div>
       <button class="checkout-btn" onclick="sendOrder()">Confirmer la commande</button>
     </div>
@@ -643,140 +361,98 @@
   </div>
 
   <script>
-    // 🔑 Configuration EmailJS (À MODIFIER APRÈS INSCRIPTION)
-    const EMAILJS_SERVICE_ID = "service_szixr1g"; // Nom du service Gmail créé
-    const EMAILJS_TEMPLATE_ID = "template_byfggzp"; // ID de votre template (à remplacer)
-    const EMAILJS_PUBLIC_KEY = "hRR6CDewTcZqglabv"; // Votre Public Key EmailJS (à remplacer)
-    
-    // 🔑 Configuration Telegram (À MODIFIER APRÈS CRÉATION)
-    const TELEGRAM_BOT_TOKEN = "5663230799:AAEQEiV73u7cJ8IUb2mwqthlKWEf67jephY"; // Token du bot Telegram
-    const TELEGRAM_CHAT_ID = "724632734"; // ID de votre chat Telegram
-    
-    // 🔑 Configuration application
+    // =====================================================
+    // CONFIGURATION — SEULE PARTIE À COMPLÉTER
+    // =====================================================
+    // Collez entre les guillemets l'URL de votre script Apps Script (finit par /exec)
+    const APPS_SCRIPT_URL = "COLLEZ_ICI_VOTRE_URL_EXEC";
+
+    // URL de la feuille Articles (déjà remplie — ne pas modifier)
     const GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRO9Ylv3GrLJI6OtTQu5sC9MY2-2IdZ-G-uxltTBbVnQ9L8ztg_LGtK-HSrRbnIeYlu21j29-FhF9Cw/pub?gid=0&single=true&output=csv";
-        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwGGpNFBIBGrf6bPTUbZP7IzGDqYR8hYQ6T7c0CEbHzbQQhnyg_NTw7-E7HeFI2Zu5MZg/exec
-";
-    
+
+    // Notification Telegram du vendeur (facultatif — laisser vide pour désactiver)
+    const TELEGRAM_BOT_TOKEN = "";
+    const TELEGRAM_CHAT_ID = "";
+    // =====================================================
+
     let articles = [];
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
     let categories = new Set();
 
-    // Initialiser EmailJS
-    try {
-      emailjs.init(EMAILJS_PUBLIC_KEY);
-    } catch (error) {
-      console.error('Erreur initialisation EmailJS:', error);
-    }
-
-    // Charger les articles avec gestion d'erreur robuste
+    // ---------- Chargement des articles (avec délai de sécurité) ----------
     async function loadArticles() {
       const container = document.getElementById('articles-container');
-      
       try {
-        // Timeout de 10 secondes
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000);
-        
+        const timeoutId = setTimeout(function () { controller.abort(); }, 10000);
         const response = await fetch(GOOGLE_SHEET_URL, { signal: controller.signal });
         clearTimeout(timeoutId);
-        
-        if (!response.ok) {
-          throw new Error(`Erreur HTTP: ${response.status}`);
-        }
-        
+        if (!response.ok) throw new Error('HTTP ' + response.status);
         const csvText = await response.text();
         parseCSV(csvText);
       } catch (error) {
         console.error('Erreur chargement articles:', error);
-        
-        let errorMsg = '<div class="error-message">';
-        errorMsg += '<h3>Erreur de chargement</h3>';
-        errorMsg += '<p>Impossible de charger la liste des articles.</p>';
-        errorMsg += '<p>Vérifiez que :</p>';
-        errorMsg += '<ul>';
-        errorMsg += '<li>Votre Google Sheet est publié en mode "public"</li>';
-        errorMsg += '<li>La structure du tableau est correcte (Catégorie, Article, Prix)</li>';
-        errorMsg += '<li>Votre connexion internet est active</li>';
-        errorMsg += '</ul>';
-        errorMsg += '<p><strong>URL utilisée :</strong><br>' + GOOGLE_SHEET_URL.substring(0, 80) + '...</p>';
-        errorMsg += '</div>';
-        
-        container.innerHTML = errorMsg;
+        container.innerHTML =
+          '<div class="error-message"><strong>Erreur de chargement des articles.</strong><br>' +
+          'Vérifiez : 1) que la feuille Articles est publiée en CSV, ' +
+          '2) que les colonnes sont Catégorie, Article, Prix, ' +
+          '3) votre connexion internet.</div>';
       }
     }
 
-    // Parser CSV robuste
-    function parseCSV(csvText) {
-      const lines = csvText.trim().split(/\r?\n/);
-      if (lines.length < 2) {
-        showError('Fichier vide ou mal formaté');
-        return;
-      }
-      
-      const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
-      
-      const catCol = headers.findIndex(h => /cat[eé]gorie/i.test(h) || /category/i.test(h));
-      const nameCol = headers.findIndex(h => /article|produit|nom|name/i.test(h));
-      const priceCol = headers.findIndex(h => /prix|price|montant/i.test(h));
-      
-      if (catCol === -1 || nameCol === -1 || priceCol === -1) {
-        showError('Colonnes incorrectes. Vérifiez: Catégorie, Article, Prix');
-        return;
-      }
-      
-      articles = [];
-      categories.clear();
-      
-      for (let i = 1; i < lines.length; i++) {
-        if (!lines[i].trim()) continue;
-        const values = parseCSVLine(lines[i]);
-        if (values.length < 3) continue;
-        
-        const category = values[catCol]?.trim() || 'Divers';
-        const name = values[nameCol]?.trim();
-        const price = parseInt(values[priceCol]?.trim().replace(/\D/g, '')) || 0;
-        
-        if (name && price > 0) {
-          articles.push({ id: i, category, name, price });
-          categories.add(category);
-        }
-      }
-      
-      if (articles.length === 0) {
-        showError('Aucun article valide trouvé');
-        return;
-      }
-      
-      displayCategories();
-      displayArticles(articles);
-      updateCart();
-    }
-    
     function parseCSVLine(line) {
       const values = [];
       let current = '', inQuotes = false;
-      
       for (let i = 0; i < line.length; i++) {
-        if (line[i] === '"') inQuotes = !inQuotes;
-        else if (line[i] === ',' && !inQuotes) {
-          values.push(current.trim());
-          current = '';
-        } else current += line[i];
+        const c = line[i];
+        if (c === '"') inQuotes = !inQuotes;
+        else if (c === ',' && !inQuotes) { values.push(current.trim()); current = ''; }
+        else current += c;
       }
       values.push(current.trim());
       return values;
     }
 
+    function parseCSV(csvText) {
+      const lines = csvText.trim().split(/\r?\n/);
+      if (lines.length < 2) { showError('Fichier vide ou mal formaté.'); return; }
+      const headers = lines[0].split(',').map(function (h) { return h.trim().replace(/^"|"$/g, ''); });
+      const catCol = headers.findIndex(function (h) { return /cat[eé]gorie/i.test(h); });
+      const nameCol = headers.findIndex(function (h) { return /article|produit|nom|name/i.test(h); });
+      const priceCol = headers.findIndex(function (h) { return /prix|price|montant/i.test(h); });
+      if (catCol === -1 || nameCol === -1 || priceCol === -1) {
+        showError('Colonnes incorrectes. Attendu : Catégorie, Article, Prix.');
+        return;
+      }
+      articles = [];
+      categories.clear();
+      for (let i = 1; i < lines.length; i++) {
+        if (!lines[i].trim()) continue;
+        const values = parseCSVLine(lines[i]);
+        if (values.length < 3) continue;
+        const category = (values[catCol] || '').trim() || 'Divers';
+        const name = (values[nameCol] || '').trim();
+        const price = parseInt((values[priceCol] || '').replace(/\D/g, '')) || 0;
+        if (name && price > 0) {
+          articles.push({ id: i, category: category, name: name, price: price });
+          categories.add(category);
+        }
+      }
+      if (articles.length === 0) { showError('Aucun article valide trouvé.'); return; }
+      displayCategories();
+      displayArticles(articles);
+      updateCart();
+    }
+
     function showError(message) {
-      document.getElementById('articles-container').innerHTML = 
-        `<div class="error-message"><h3>Erreur</h3><p>${message}</p></div>`;
+      document.getElementById('articles-container').innerHTML =
+        '<div class="error-message">' + message + '</div>';
     }
 
     function displayCategories() {
       const select = document.getElementById('category-filter');
       while (select.options.length > 1) select.remove(1);
-      
-      Array.from(categories).sort().forEach(cat => {
+      Array.from(categories).sort().forEach(function (cat) {
         const opt = document.createElement('option');
         opt.value = cat;
         opt.textContent = cat;
@@ -790,103 +466,83 @@
         container.innerHTML = '<div class="loading">Aucun article dans cette catégorie</div>';
         return;
       }
-      
-      container.innerHTML = items.map(a => `
-        <div class="article-card">
-          <div class="article-category">${a.category}</div>
-          <div class="article-name">${a.name}</div>
-          <div class="article-price">${a.price.toLocaleString()} FCFA</div>
-          <button class="add-to-cart" onclick="addToCart(${a.id})">Ajouter au panier</button>
-        </div>
-      `).join('');
+      container.innerHTML = items.map(function (a) {
+        return '<div class="article-card">' +
+          '<div class="article-category">' + a.category + '</div>' +
+          '<div class="article-name">' + a.name + '</div>' +
+          '<div class="article-price">' + a.price.toLocaleString('fr-FR') + ' FCFA</div>' +
+          '<button class="add-to-cart" onclick="addToCart(' + a.id + ')">Ajouter au panier</button>' +
+        '</div>';
+      }).join('');
     }
 
     function filterArticles() {
       const cat = document.getElementById('category-filter').value;
-      const filtered = cat === 'all' ? articles : articles.filter(a => a.category === cat);
+      const filtered = cat === 'all' ? articles : articles.filter(function (a) { return a.category === cat; });
       displayArticles(filtered);
     }
 
+    // ---------- Panier ----------
     function addToCart(id) {
-      const article = articles.find(a => a.id === id);
+      const article = articles.find(function (a) { return a.id === id; });
       if (!article) return;
-      
-      const existing = cart.find(i => i.id === id);
-      existing ? existing.quantity++ : cart.push({...article, quantity: 1});
-      
+      const existing = cart.find(function (i) { return i.id === id; });
+      if (existing) existing.quantity++;
+      else cart.push(Object.assign({}, article, { quantity: 1 }));
       saveCart();
       updateCart();
-      setTimeout(() => alert('Article ajouté au panier avec succès !'), 100);
+      setTimeout(function () { alert('Article ajouté au panier avec succès !'); }, 100);
     }
 
     function updateCart() {
-      document.getElementById('cart-count').textContent = cart.reduce((s, i) => s + i.quantity, 0);
-      
-      const total = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
-      document.getElementById('cart-total').textContent = total.toLocaleString();
-      document.getElementById('checkout-total').textContent = total.toLocaleString();
-      
+      document.getElementById('cart-count').textContent = cart.reduce(function (s, i) { return s + i.quantity; }, 0);
+      const total = cart.reduce(function (s, i) { return s + (i.price * i.quantity); }, 0);
+      document.getElementById('cart-total').textContent = total.toLocaleString('fr-FR');
+      document.getElementById('checkout-total').textContent = total.toLocaleString('fr-FR');
       const itemsEl = document.getElementById('cart-items');
-      if (cart.length === 0) {
-        itemsEl.innerHTML = '<p>Votre panier est vide</p>';
-        return;
-      }
-      
-      itemsEl.innerHTML = cart.map(i => `
-        <div class="cart-item">
-          <div class="cart-item-info">
-            <div class="cart-item-name">${i.name}</div>
-            <div class="cart-item-price">${i.price.toLocaleString()} FCFA x ${i.quantity}</div>
-          </div>
-          <div class="quantity-controls">
-            <button class="quantity-btn" onclick="changeQuantity(${i.id}, -1)">-</button>
-            <span class="quantity-display">${i.quantity}</span>
-            <button class="quantity-btn" onclick="changeQuantity(${i.id}, 1)">+</button>
-          </div>
-        </div>
-      `).join('');
+      if (cart.length === 0) { itemsEl.innerHTML = '<p>Votre panier est vide</p>'; return; }
+      itemsEl.innerHTML = cart.map(function (i) {
+        return '<div class="cart-item">' +
+          '<div class="cart-item-info">' +
+            '<div class="cart-item-name">' + i.name + '</div>' +
+            '<div class="cart-item-price">' + i.price.toLocaleString('fr-FR') + ' FCFA x ' + i.quantity + '</div>' +
+          '</div>' +
+          '<div class="quantity-controls">' +
+            '<button class="quantity-btn" onclick="changeQuantity(' + i.id + ', -1)">-</button>' +
+            '<span class="quantity-display">' + i.quantity + '</span>' +
+            '<button class="quantity-btn" onclick="changeQuantity(' + i.id + ', 1)">+</button>' +
+          '</div>' +
+        '</div>';
+      }).join('');
     }
 
     function changeQuantity(id, delta) {
-      const item = cart.find(i => i.id === id);
+      const item = cart.find(function (i) { return i.id === id; });
       if (!item) return;
-      
       if (delta === -1 && item.quantity <= 1) {
-        if (confirm(`Retirer ${item.name} du panier ?`)) {
-          cart = cart.filter(i => i.id !== id);
+        if (confirm('Retirer ' + item.name + ' du panier ?')) {
+          cart = cart.filter(function (i) { return i.id !== id; });
         }
       } else {
         item.quantity += delta;
       }
-      
       saveCart();
       updateCart();
     }
 
-    function saveCart() {
-      localStorage.setItem('cart', JSON.stringify(cart));
-    }
+    function saveCart() { localStorage.setItem('cart', JSON.stringify(cart)); }
 
     function openCart() { document.getElementById('cart-modal').style.display = 'flex'; }
     function closeCart() { document.getElementById('cart-modal').style.display = 'none'; }
 
     function openCheckout() {
-      if (cart.length === 0) {
-        setTimeout(() => alert('Votre panier est vide'), 100);
-        return;
-      }
+      if (cart.length === 0) { setTimeout(function () { alert('Votre panier est vide'); }, 100); return; }
       closeCart();
-      document.getElementById('checkout-modal').style.display = 'flex';
-      
-      // Réinitialiser les erreurs
       document.getElementById('customer-phone').classList.remove('input-error');
       document.getElementById('phone-error').style.display = 'none';
+      document.getElementById('checkout-modal').style.display = 'flex';
     }
-    
-    function closeCheckout() {
-      document.getElementById('checkout-modal').style.display = 'none';
-    }
-
+    function closeCheckout() { document.getElementById('checkout-modal').style.display = 'none'; }
     function closeSuccess() {
       document.getElementById('success-modal').style.display = 'none';
       cart = [];
@@ -894,153 +550,92 @@
       updateCart();
     }
 
-    // Vérifier si le numéro commence par un indicatif pays valide
+    // ---------- Validation du numéro (indicatif obligatoire) ----------
     function isValidPhoneNumber(phone) {
-      // Liste des indicatifs pays courants pour l'Afrique de l'Ouest
-      const validPrefixes = [
-        '228', // Togo
-        '221', // Sénégal
-        '225', // Côte d'Ivoire
-        '226', // Burkina Faso
-        '223', // Mali
-        '224', // Guinée
-        '222', // Mauritanie
-        '229', // Bénin
-        '227', // Niger
-        '233', // Ghana
-        '234'  // Nigeria
-      ];
-      
-      const cleanPhone = phone.replace(/\D/g, '');
-      
-      // Vérifier que le numéro commence par un indicatif valide
-      return validPrefixes.some(prefix => cleanPhone.startsWith(prefix));
+      const prefixes = ['228','221','225','226','223','224','222','229','227','233','234'];
+      const clean = phone.replace(/\D/g, '');
+      return prefixes.some(function (p) { return clean.startsWith(p); });
     }
 
+    // ---------- Commande ----------
     async function sendOrder() {
       const name = document.getElementById('customer-name').value.trim();
       const phoneInput = document.getElementById('customer-phone');
       const phone = phoneInput.value.trim();
-      const total = cart.reduce((s, i) => s + (i.price * i.quantity), 0);
-      
-      // Validation du nom
-      if (!name) {
-        setTimeout(() => alert('Veuillez entrer votre nom complet'), 100);
-        return;
-      }
-      
-      // Validation du numéro de téléphone
-      if (!phone) {
-        setTimeout(() => alert('Veuillez entrer votre numéro WhatsApp'), 100);
-        return;
-      }
-      
-      // Validation de l'indicatif pays
+      const total = cart.reduce(function (s, i) { return s + (i.price * i.quantity); }, 0);
+
+      if (!name) { setTimeout(function () { alert('Veuillez entrer votre nom complet'); }, 100); return; }
+      if (!phone) { setTimeout(function () { alert('Veuillez entrer votre numéro WhatsApp'); }, 100); return; }
       if (!isValidPhoneNumber(phone)) {
         phoneInput.classList.add('input-error');
         document.getElementById('phone-error').style.display = 'block';
-        setTimeout(() => {
-          alert('Le numéro de téléphone doit commencer par l\'indicatif pays (ex: 228 pour le Togo, 221 pour le Sénégal, etc.)');
-        }, 100);
+        setTimeout(function () { alert('Le numéro doit commencer par l\'indicatif du pays (ex: 228).'); }, 100);
         return;
       }
-      
-      // Réinitialiser l'erreur si validation réussie
       phoneInput.classList.remove('input-error');
       document.getElementById('phone-error').style.display = 'none';
-      
-      // 1. Envoyer notification EMAIL au vendeur via EmailJS
-      try {
-        const itemsList = cart.map(i => 
-          `- ${i.name} x ${i.quantity} = ${(i.price * i.quantity).toLocaleString()} FCFA`
-        ).join('\n');
-        
-        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-          name: name,
-          phone: phone,
-          items_list: itemsList,
-          total: total.toLocaleString()
+
+      // 1. Enregistrement automatique dans la feuille Commandes
+      if (APPS_SCRIPT_URL && APPS_SCRIPT_URL.indexOf('http') === 0) {
+        const orderPayload = JSON.stringify({
+          action: 'add',
+          order: {
+            ref: 'R' + Date.now() + '-' + Math.floor(Math.random() * 10000),
+            date: new Date().toLocaleDateString('fr-FR') + ' ' + new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+            client: name,
+            phone: phone,
+            articles: cart.map(function (i) { return i.name + ' x' + i.quantity + ' = ' + (i.price * i.quantity).toLocaleString('fr-FR') + ' FCFA'; }).join(', '),
+            total: String(total),
+            status: 'En attente',
+            notes: ''
+          }
         });
-      } catch (error) {
-        console.error('Erreur EmailJS:', error);
-        // Continuer même si email échoue (ne pas bloquer le client)
-      }
-            // Enregistrement automatique de la commande dans Google Sheets
-      const orderPayload = JSON.stringify({
-        action: 'add',
-        order: {
-          ref: 'R' + Date.now() + '-' + Math.floor(Math.random() * 10000),
-          date: new Date().toLocaleDateString('fr-FR') + ' ' + new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
-          client: name,
-          phone: phone,
-          articles: cart.map(i => i.name + ' x' + i.quantity + ' = ' + (i.price * i.quantity).toLocaleString('fr-FR') + ' FCFA').join(', '),
-          total: String(total),
-          status: 'En attente',
-          notes: ''
-        }
-      });
-      try {
-        await fetch(APPS_SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: orderPayload });
-      } catch (err) {
         try {
-          await fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: orderPayload });
-        } catch (err2) { console.error('Enregistrement impossible:', err2); }
+          await fetch(APPS_SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: orderPayload });
+        } catch (err) {
+          try {
+            await fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: orderPayload });
+          } catch (err2) { console.error('Enregistrement impossible:', err2); }
+        }
       }
 
-      
-      // 2. Envoyer message WhatsApp au CLIENT
-      const clientMessage = `Bonjour ${name},\n\nMerci pour votre commande à la PROCURE SHOP !\n\nRappel de votre commande :\n${cart.map(i => `- ${i.name} x ${i.quantity}`).join('\n')}\n\nTotal : ${total.toLocaleString()} FCFA\n\nVotre commande est en cours de preparation. Nous vous contacterons dès que celle-ci sera prête pour la livraison.\n\nA très bientôt !`;
-      
-      window.open(`https://wa.me/${phone.replace(/\D/g, '')}?text=${encodeURIComponent(clientMessage)}`, '_blank');
-      
-      // 3. Envoyer notification TELEGRAM au vendeur
-      const telegramMessage = `Nouvelle commande :\nClient : ${name}\nWhatsApp : ${phone}\nTotal : ${total.toLocaleString()} FCFA\n\nArticles :\n${cart.map(i => `- ${i.name} x ${i.quantity}`).join('\n')}`;
-      
-      try {
-        const telegramUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage?chat_id=${TELEGRAM_CHAT_ID}&text=${encodeURIComponent(telegramMessage)}`;
-        await fetch(telegramUrl).then(response => {
-          if (!response.ok) throw new Error('Erreur Telegram');
-        });
-      } catch (error) {
-        console.error('Erreur Telegram:', error);
-        // Ne pas bloquer le client si Telegram échoue
+      // 2. Message WhatsApp de confirmation au client
+      let clientMessage = 'Bonjour ' + name + ',\n\nMerci pour votre commande chez PROCURE SHOP !\n\nRappel de votre commande :\n';
+      cart.forEach(function (i) { clientMessage += '- ' + i.name + ' x ' + i.quantity + '\n'; });
+      clientMessage += '\nTotal : ' + total.toLocaleString('fr-FR') + ' FCFA\n\nVotre commande est en cours de préparation. Nous vous contacterons dès qu\'elle sera prête pour la livraison.\n\nÀ très bientôt !';
+      window.open('https://wa.me/' + phone.replace(/\D/g, '') + '?text=' + encodeURIComponent(clientMessage), '_blank');
+
+      // 3. Notification Telegram du vendeur (si configurée)
+      if (TELEGRAM_BOT_TOKEN && TELEGRAM_CHAT_ID) {
+        let sellerMessage = 'NOUVELLE COMMANDE\nClient : ' + name + '\nWhatsApp : ' + phone + '\nTotal : ' + total.toLocaleString('fr-FR') + ' FCFA\n\n' + cart.map(function (i) { return '- ' + i.name + ' x ' + i.quantity; }).join('\n');
+        try {
+          await fetch('https://api.telegram.org/bot' + TELEGRAM_BOT_TOKEN + '/sendMessage?chat_id=' + TELEGRAM_CHAT_ID + '&text=' + encodeURIComponent(sellerMessage));
+        } catch (e) { console.error('Erreur Telegram:', e); }
       }
-      
-      // 4. Préparer écran de confirmation
-      let orderDetails = `Client : ${name}\n`;
-      orderDetails += `WhatsApp : ${phone}\n\n`;
-      orderDetails += `Articles :\n`;
-      cart.forEach(i => {
-        orderDetails += `- ${i.name} x ${i.quantity} = ${(i.price * i.quantity).toLocaleString()} FCFA\n`;
-      });
-      orderDetails += `\nTOTAL : ${total.toLocaleString()} FCFA`;
-      
+
+      // 4. Écran de confirmation
+      let orderDetails = 'Client : ' + name + '\nWhatsApp : ' + phone + '\n\nArticles :\n';
+      cart.forEach(function (i) { orderDetails += '- ' + i.name + ' x ' + i.quantity + ' = ' + (i.price * i.quantity).toLocaleString('fr-FR') + ' FCFA\n'; });
+      orderDetails += '\nTOTAL : ' + total.toLocaleString('fr-FR') + ' FCFA';
       document.getElementById('success-message').textContent = orderDetails;
-      document.getElementById('success-modal').style.display = 'flex';
       closeCheckout();
-      
-      // 5. Message de confirmation simple
-      setTimeout(() => {
-        alert('Commande confirmée ! Merci pour votre confiance.');
-      }, 100);
-      
-      // 6. Vider le panier
+      document.getElementById('success-modal').style.display = 'flex';
+      setTimeout(function () { alert('Commande confirmée ! Merci pour votre confiance.'); }, 300);
+
+      // 5. Vider le panier
       cart = [];
       saveCart();
       updateCart();
     }
 
-    window.onclick = function(event) {
+    window.onclick = function (event) {
       if (event.target.id === 'cart-modal') closeCart();
       if (event.target.id === 'checkout-modal') closeCheckout();
       if (event.target.id === 'success-modal') closeSuccess();
-    }
+    };
 
-    // Chargement initial avec délai pour éviter les conflits
-    document.addEventListener('DOMContentLoaded', () => {
-      setTimeout(() => {
-        loadArticles();
-      }, 500);
+    document.addEventListener('DOMContentLoaded', function () {
+      setTimeout(loadArticles, 300);
     });
   </script>
 </body>
