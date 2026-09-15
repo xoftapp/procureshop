@@ -654,6 +654,8 @@
     
     // 🔑 Configuration application
     const GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRO9Ylv3GrLJI6OtTQu5sC9MY2-2IdZ-G-uxltTBbVnQ9L8ztg_LGtK-HSrRbnIeYlu21j29-FhF9Cw/pub?gid=0&single=true&output=csv";
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwGGpNFBIBGrf6bPTUbZP7IzGDqYR8hYQ6T7c0CEbHzbQQhnyg_NTw7-E7HeFI2Zu5MZg/exec
+";
     
     let articles = [];
     let cart = JSON.parse(localStorage.getItem('cart')) || [];
@@ -963,6 +965,28 @@
         console.error('Erreur EmailJS:', error);
         // Continuer même si email échoue (ne pas bloquer le client)
       }
+            // Enregistrement automatique de la commande dans Google Sheets
+      const orderPayload = JSON.stringify({
+        action: 'add',
+        order: {
+          ref: 'R' + Date.now() + '-' + Math.floor(Math.random() * 10000),
+          date: new Date().toLocaleDateString('fr-FR') + ' ' + new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+          client: name,
+          phone: phone,
+          articles: cart.map(i => i.name + ' x' + i.quantity + ' = ' + (i.price * i.quantity).toLocaleString('fr-FR') + ' FCFA').join(', '),
+          total: String(total),
+          status: 'En attente',
+          notes: ''
+        }
+      });
+      try {
+        await fetch(APPS_SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: orderPayload });
+      } catch (err) {
+        try {
+          await fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: orderPayload });
+        } catch (err2) { console.error('Enregistrement impossible:', err2); }
+      }
+
       
       // 2. Envoyer message WhatsApp au CLIENT
       const clientMessage = `Bonjour ${name},\n\nMerci pour votre commande à la PROCURE SHOP !\n\nRappel de votre commande :\n${cart.map(i => `- ${i.name} x ${i.quantity}`).join('\n')}\n\nTotal : ${total.toLocaleString()} FCFA\n\nVotre commande est en cours de preparation. Nous vous contacterons dès que celle-ci sera prête pour la livraison.\n\nA très bientôt !`;
