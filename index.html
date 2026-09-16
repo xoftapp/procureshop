@@ -103,8 +103,9 @@
     
     /* DASHBOARD */
     .dashboard-tabs { display: flex; gap: 10px; margin-bottom: 1.5rem; border-bottom: 2px solid #e2e8f0; }
-    .tab-btn { padding: 0.8rem 1.2rem; background: none; border: none; cursor: pointer; font-size: 1rem; font-weight: 600; color: var(--gray); border-bottom: 3px solid transparent; margin-bottom: -2px; }
+    .tab-btn { padding: 0.8rem 1.2rem; background: none; border: none; cursor: pointer; font-size: 1rem; font-weight: 600; color: var(--gray); border-bottom: 3px solid transparent; margin-bottom: -2px; transition: 0.2s; }
     .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
+    .tab-btn:hover { color: var(--primary-dark); }
     .tab-content { display: none; }
     .tab-content.active { display: block; }
     .history-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
@@ -117,6 +118,31 @@
     .btn-sm { padding: 0.4rem 0.8rem; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600; color: white; background: var(--primary); }
     .btn-sm:hover { background: var(--primary-dark); }
     .btn-danger { background: var(--danger); }
+    
+    .password-section {
+      background: #f8fafc;
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin-top: 1rem;
+      border-left: 4px solid var(--primary);
+    }
+    .password-section h3 {
+      color: var(--primary);
+      margin-bottom: 1rem;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .success-message {
+      background: #d1fae5;
+      color: #065f46;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+      display: none;
+      font-weight: 600;
+    }
     
     .loading { text-align: center; padding: 2rem; color: var(--gray); }
     .error-message { background: #fef2f2; color: #b91c1c; padding: 1.5rem; border-radius: 12px; margin: 1.5rem 0; border-left: 4px solid #ef4444; }
@@ -141,11 +167,10 @@
       
       <select id="loginName" onchange="toggleLoginMode()">
         <option value="">Sélectionnez votre nom...</option>
-        <!-- Les noms seront ajoutés ici par JS -->
         <option value="__autre__">Autre (Connexion Google)</option>
       </select>
       
-      <div id="passwordGroup">
+      <div id="passwordGroup" style="display: none;">
         <input type="password" id="loginPassword" placeholder="Mot de passe">
         <button class="login-btn" id="loginBtn" onclick="loginPredefined()">Se connecter</button>
       </div>
@@ -246,8 +271,8 @@
       <p style="color: var(--gray); margin-bottom: 1.5rem;">Bonjour <strong id="dashUserName"></strong></p>
       
       <div class="dashboard-tabs">
-        <button class="tab-btn active" onclick="switchTab('history')">Mes Commandes</button>
-        <button class="tab-btn" onclick="switchTab('settings')" id="tabSettingsBtn">Paramètres</button>
+        <button class="tab-btn active" onclick="switchTab('history')">📋 Mes Commandes</button>
+        <button class="tab-btn" onclick="switchTab('settings')" id="tabSettingsBtn">⚙️ Paramètres</button>
       </div>
 
       <!-- Tab Historique -->
@@ -257,17 +282,22 @@
 
       <!-- Tab Paramètres -->
       <div id="tabSettings" class="tab-content">
-        <div id="settingsContent">
-          <h3 style="margin-bottom: 1rem; font-size: 1.1rem;">Changer le mot de passe</h3>
+        <div class="password-section">
+          <h3>🔐 Changer mon mot de passe</h3>
           <div class="input-group">
             <label>Ancien mot de passe</label>
-            <input type="password" id="oldPwd">
+            <input type="password" id="oldPwd" placeholder="Votre mot de passe actuel">
           </div>
           <div class="input-group">
-            <label>Nouveau mot de passe (min. 4 caractères)</label>
-            <input type="password" id="newPwd">
+            <label>Nouveau mot de passe</label>
+            <input type="password" id="newPwd" placeholder="Minimum 4 caractères">
           </div>
-          <button class="save-btn" onclick="changePassword()">Enregistrer</button>
+          <div class="input-group">
+            <label>Confirmer le nouveau mot de passe</label>
+            <input type="password" id="confirmPwd" placeholder="Retapez le nouveau mot de passe">
+          </div>
+          <button class="save-btn" onclick="changePassword()">💾 Enregistrer le changement</button>
+          <div class="success-message" id="pwdSuccess">✓ Mot de passe modifié avec succès !</div>
         </div>
       </div>
 
@@ -307,7 +337,6 @@
         const data = await res.json();
         if (data.ok && data.names) {
           const select = document.getElementById('loginName');
-          // Garder la première option et "Autre"
           const autreOption = select.querySelector('option[value="__autre__"]');
           select.innerHTML = '<option value="">Sélectionnez votre nom...</option>';
           data.names.forEach(name => {
@@ -432,7 +461,7 @@
         if (!response.ok) throw new Error('HTTP ' + response.status);
         parseCSV(await response.text());
       } catch (error) {
-        container.innerHTML = '<div class="error-message">Erreur de chargement des articles.</div>';
+        container.innerHTML = '<div class="error-message">Erreur de chargement des articles. Veuillez rafraîchir la page (Ctrl + F5).</div>';
       }
     }
 
@@ -440,9 +469,9 @@
       const lines = csvText.trim().split(/\r?\n/);
       if (lines.length < 2) return;
       const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, '').toLowerCase());
-      const catCol = headers.findIndex(h => h.includes('categorie'));
-      const nameCol = headers.findIndex(h => h.includes('article') || h.includes('produit'));
-      const priceCol = headers.findIndex(h => h.includes('prix'));
+      const catCol = headers.findIndex(h => h.includes('categorie') || h.includes('catégorie'));
+      const nameCol = headers.findIndex(h => h.includes('article') || h.includes('produit') || h.includes('nom'));
+      const priceCol = headers.findIndex(h => h.includes('prix') || h.includes('price'));
       if (catCol === -1 || nameCol === -1 || priceCol === -1) return;
 
       articles = []; categories.clear();
@@ -547,7 +576,6 @@
     function openCheckout() {
       if (!cart.length) return alert('Votre panier est vide');
       closeModal('cartModal');
-      // Pré-remplir l'email si disponible
       if (currentUser && currentUser.email) {
         document.getElementById('checkoutEmail').value = currentUser.email;
       }
@@ -573,7 +601,6 @@
         return;
       }
 
-      // Verrouillage du bouton (Anti-doublon)
       btn.disabled = true;
       btn.textContent = 'Traitement en cours...';
 
@@ -598,20 +625,17 @@
         try { await fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(orderPayload) }); } catch (e) {}
       }
 
-      // WhatsApp
       let msg = 'Bonjour ' + currentUser.name + ',\n\nMerci pour votre commande chez PROCURE SHOP !\n\nRappel :\n';
       cart.forEach(i => msg += '- ' + i.name + ' x ' + i.quantity + '\n');
       msg += '\nTotal : ' + formatMoney(total) + ' FCFA\n\nÀ très bientôt !';
       window.open('https://wa.me/' + phone.replace(/\D/g, '') + '?text=' + encodeURIComponent(msg), '_blank');
 
-      // Succès
       closeModal('checkoutModal');
       document.getElementById('successModal').style.display = 'flex';
       
       cart = []; saveCart(); updateCart();
       document.getElementById('checkoutPhone').value = '';
       
-      // Déverrouillage
       btn.disabled = false;
       btn.textContent = 'Confirmer la commande';
     }
@@ -629,7 +653,7 @@
       document.getElementById('dashUserName').textContent = currentUser.name;
       document.getElementById('dashboardModal').style.display = 'flex';
       
-      // Cacher l'onglet Paramètres si connexion Google
+      // Afficher l'onglet Paramètres UNIQUEMENT pour les comptes prédéfinis (non-Google)
       document.getElementById('tabSettingsBtn').style.display = currentUser.isGoogle ? 'none' : 'block';
       
       await loadHistory();
@@ -678,8 +702,21 @@
     async function changePassword() {
       const oldPwd = document.getElementById('oldPwd').value;
       const newPwd = document.getElementById('newPwd').value;
-      if (!oldPwd || !newPwd) return alert('Veuillez remplir les deux champs.');
-      if (newPwd.length < 4) return alert('Le nouveau mot de passe doit contenir au moins 4 caractères.');
+      const confirmPwd = document.getElementById('confirmPwd').value;
+      const successMsg = document.getElementById('pwdSuccess');
+
+      if (!oldPwd || !newPwd || !confirmPwd) {
+        alert('Veuillez remplir tous les champs.');
+        return;
+      }
+      if (newPwd.length < 4) {
+        alert('Le nouveau mot de passe doit contenir au moins 4 caractères.');
+        return;
+      }
+      if (newPwd !== confirmPwd) {
+        alert('Les mots de passe ne correspondent pas.');
+        return;
+      }
 
       try {
         const res = await fetch(APPS_SCRIPT_URL, {
@@ -689,9 +726,11 @@
         });
         const data = await res.json();
         if (data.ok) {
-          alert('Mot de passe modifié avec succès !');
+          successMsg.style.display = 'block';
+          setTimeout(() => { successMsg.style.display = 'none'; }, 3000);
           document.getElementById('oldPwd').value = '';
           document.getElementById('newPwd').value = '';
+          document.getElementById('confirmPwd').value = '';
         } else {
           alert('Erreur : ' + (data.error || 'Échec du changement.'));
         }
@@ -747,7 +786,6 @@
       doc.text('Client : ' + order.client, 13, y + 7);
       y += 18;
 
-      // Table Header
       doc.setFont('times', 'bold'); doc.setFontSize(9); doc.setTextColor(30, 58, 138);
       doc.text('Désignation', colName, y); doc.text('Qté', colQty, y, { align: 'right' }); doc.text('Montant (FCFA)', colAmount, y, { align: 'right' });
       y += 2; doc.setLineWidth(0.4); doc.line(10, y, W - 10, y); y += 5;
