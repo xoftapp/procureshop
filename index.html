@@ -59,9 +59,9 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 .qty-btn{width:28px;height:28px;background:var(--primary);color:#fff;border:none;border-radius:50%;cursor:pointer;font-weight:700}
 .qty-val{min-width:28px;text-align:center;font-weight:700;background:var(--light);padding:4px;border-radius:6px}
 .cart-total{font-size:1.4rem;font-weight:700;color:var(--primary-dark);text-align:right;margin:1.3rem 0;padding-top:1rem;border-top:2px solid #e2e8f0}
-.primary-btn{width:100%;padding:1rem;background:linear-gradient(135deg,var(--success),#0d9488);color:#fff;border:none;border-radius:10px;font-size:1.05rem;font-weight:700;cursor:pointer}
+.primary-btn{width:100%;padding:1rem;background:linear-gradient(135deg,var(--success),#0d9488);color:#fff;border:none;border-radius:10px;font-size:1.05rem;font-weight:700;cursor:pointer;margin-top:.6rem}
 .primary-btn:disabled{opacity:.6;cursor:not-allowed}
-.danger-btn{width:100%;padding:.9rem;background:var(--danger);color:#fff;border:none;border-radius:10px;font-weight:600;cursor:pointer;margin-top:1.5rem}
+.wa-btn{width:100%;padding:1rem;background:#25d366;color:#fff;border:none;border-radius:10px;font-size:1.05rem;font-weight:700;cursor:pointer;display:none}
 .small{color:var(--gray);font-size:.8rem;margin-top:4px}
 .space-page{display:none;min-height:100vh;background:var(--light)}
 .space-header{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;padding:1.5rem}
@@ -108,16 +108,10 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
     <p>Connectez-vous pour accéder à la boutique</p>
     <div class="form-group">
       <label>Choisissez votre profil</label>
-      <select id="loginName" onchange="toggleLogin()">
-        <option value="">-- Sélectionnez --</option>
-        <option value="__autre__">🔐 Autre (Connexion Google)</option>
-      </select>
+      <select id="loginName" onchange="toggleLogin()"><option value="">-- Sélectionnez --</option><option value="__autre__">🔐 Autre (Connexion Google)</option></select>
     </div>
     <div id="pwdGroup" style="display:none">
-      <div class="form-group">
-        <label>Mot de passe</label>
-        <input type="password" id="loginPwd" placeholder="Votre mot de passe" onkeypress="if(event.key==='Enter')doLogin()">
-      </div>
+      <div class="form-group"><label>Mot de passe</label><input type="password" id="loginPwd" placeholder="Votre mot de passe" onkeypress="if(event.key==='Enter')doLogin()"></div>
       <button class="login-btn" id="loginBtn" onclick="doLogin()">Se connecter</button>
     </div>
     <div id="googleGroup" style="display:none">
@@ -142,10 +136,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
     </div>
   </div>
   <div class="main">
-    <div class="filter-card">
-      <h3>Filtrer par catégorie</h3>
-      <select id="catFilter" onchange="filterArt()"><option value="all">Toutes les catégories</option></select>
-    </div>
+    <div class="filter-card"><h3>Filtrer par catégorie</h3><select id="catFilter" onchange="filterArt()"><option value="all">Toutes les catégories</option></select></div>
     <div class="articles-grid" id="artGrid"><div class="empty">Chargement des articles...</div></div>
   </div>
   <button class="fab" onclick="openCart()">🛒 <span class="fab-count" id="cartCount">0</span></button>
@@ -212,8 +203,9 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
   <div class="modal-box" style="text-align:center">
     <div style="font-size:4rem;color:var(--success);margin-bottom:1rem">✓</div>
     <h2 style="padding-right:0">Commande confirmée !</h2>
-    <p style="color:var(--gray);margin:1rem 0">Un récapitulatif vous a été envoyé par WhatsApp, et votre reçu PDF par email.</p>
-    <button class="primary-btn" onclick="closeM('okModal')">Continuer</button>
+    <p style="color:var(--gray);margin:1rem 0">Votre reçu PDF a été envoyé par email.<br>Cliquez ci-dessous pour recevoir le récapitulatif WhatsApp.</p>
+    <button class="wa-btn" id="waBtn" style="display:block" onclick="openLastWA()">📲 Ouvrir WhatsApp</button>
+    <button class="primary-btn" onclick="closeM('okModal')">Continuer mes achats</button>
   </div>
 </div>
 
@@ -222,12 +214,21 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 <script>
 const SCRIPT="https://script.google.com/macros/s/AKfycbwGGpNFBIBGrf6bPTUbZP7IzGDqYR8hYQ6T7c0CEbHzbQQhnyg_NTw7-E7HeFI2Zu5MZg/exec";
 const SHEET="https://docs.google.com/spreadsheets/d/e/2PACX-1vRO9Ylv3GrLJI6OtTQu5sC9MY2-2IdZ-G-uxltTBbVnQ9L8ztg_LGtK-HSrRbnIeYlu21j29-FhF9Cw/pub?gid=0&single=true&output=csv";
+const SESSION_KEY='procure_session';
 
-let articles=[],cart=JSON.parse(localStorage.getItem('cart'))||[],cats=new Set();
-let user=JSON.parse(sessionStorage.getItem('user'))||null;
-let shopInfo=null,history=[];
+let articles=[],cart=[],cats=new Set(),user=null,shopInfo=null,history=[],historyFor=null,lastWA='';
 
-document.addEventListener('DOMContentLoaded',async()=>{await preloadNames();if(user)await enterApp();});
+function userKey(){return user?((user.email||user.name)||'').toLowerCase():'';}
+function cartKey(){return 'cart_'+(userKey()||'anon');}
+function loadCart(){try{cart=JSON.parse(localStorage.getItem(cartKey()))||[];}catch(e){cart=[];}}
+function saveCart(){localStorage.setItem(cartKey(),JSON.stringify(cart));}
+function setSession(c){user=c;localStorage.setItem(SESSION_KEY,JSON.stringify(c));history=[];historyFor=null;loadCart();}
+
+document.addEventListener('DOMContentLoaded',async()=>{
+  try{user=JSON.parse(localStorage.getItem(SESSION_KEY)||'null');}catch(e){user=null;}
+  await preloadNames();
+  if(user){loadCart();await enterApp();loadHistory(true);}
+});
 
 async function preloadNames(){
   const cache=localStorage.getItem('clientNames'),t=parseInt(localStorage.getItem('clientNamesTime')||'0');
@@ -242,10 +243,10 @@ async function preloadNames(){
   if(cache)populateNames(JSON.parse(cache));
 }
 function populateNames(names){
-  const s=document.getElementById('loginName'),autre=s.querySelector('option[value="__autre__"]');
+  const s=document.getElementById('loginName'),a=s.querySelector('option[value="__autre__"]');
   s.innerHTML='<option value="">-- Sélectionnez --</option>';
   names.forEach(n=>{const o=document.createElement('option');o.value=n;o.textContent=n;s.appendChild(o);});
-  s.appendChild(autre);
+  s.appendChild(a);
 }
 function toggleLogin(){
   const v=document.getElementById('loginName').value;
@@ -262,7 +263,7 @@ async function doLogin(){
     try{
       const r=await fetch(SCRIPT,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'login',name,password:pwd})});
       const d=await r.json();
-      if(d.ok){user={...d.client,isGoogle:false};sessionStorage.setItem('user',JSON.stringify(user));await enterApp();return;}
+      if(d.ok){setSession({...d.client,isGoogle:false});document.getElementById('loginPwd').value='';await enterApp();loadHistory(true);return;}
       err.textContent=d.error||'Échec de la connexion.';err.style.display='block';break;
     }catch(e){
       if(i===2){err.textContent='Erreur réseau. Réessayez.';err.style.display='block';}
@@ -276,7 +277,7 @@ window.handleGoogle=async function(resp){
     const p=JSON.parse(atob(resp.credential.split('.')[1]));
     const r=await fetch(SCRIPT,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'loginGoogle',name:p.name,email:p.email})});
     const d=await r.json();
-    if(d.ok){user={...d.client,isGoogle:true};sessionStorage.setItem('user',JSON.stringify(user));await enterApp();}
+    if(d.ok){setSession({...d.client,isGoogle:true});await enterApp();loadHistory(true);}
     else toast(d.error||'Erreur','error');
   }catch(e){toast('Erreur réseau','error');}
 };
@@ -286,10 +287,8 @@ async function enterApp(){
   await Promise.all([loadArticles(),loadShopInfo()]);
   updateCart();
 }
-async function loadShopInfo(){
-  try{const r=await fetch(SCRIPT+'?action=shopInfo',{cache:'no-store'});const d=await r.json();if(d.ok)shopInfo=d.info;}catch(e){}
-}
-function logout(){sessionStorage.removeItem('user');user=null;location.reload();}
+async function loadShopInfo(){try{const r=await fetch(SCRIPT+'?action=shopInfo',{cache:'no-store'});const d=await r.json();if(d.ok)shopInfo=d.info;}catch(e){}}
+function logout(){localStorage.removeItem(SESSION_KEY);user=null;history=[];historyFor=null;location.reload();}
 
 async function loadArticles(){
   const g=document.getElementById('artGrid');
@@ -334,10 +333,17 @@ function updateCart(){
   it.innerHTML=cart.map(i=>`<div class="cart-item"><div class="cart-info"><div class="cart-name">${i.name}</div><div class="cart-price">${fmt(i.price)} × ${i.qty} = ${fmt(i.price*i.qty)} FCFA</div></div><div class="qty-ctrl"><button class="qty-btn" onclick="chgQty(${i.id},-1)">−</button><span class="qty-val">${i.qty}</span><button class="qty-btn" onclick="chgQty(${i.id},1)">+</button></div></div>`).join('');
 }
 function chgQty(id,d){const it=cart.find(x=>x.id===id);if(!it)return;if(d===-1&&it.qty<=1){if(confirm('Retirer '+it.name+' ?'))cart=cart.filter(x=>x.id!==id);}else it.qty+=d;saveCart();updateCart();}
-function saveCart(){localStorage.setItem('cart',JSON.stringify(cart));}
 function openCart(){document.getElementById('cartModal').style.display='flex';}
 function openCheckout(){if(!cart.length)return toast('Panier vide','error');closeM('cartModal');if(user&&user.email)document.getElementById('chkEmail').value=user.email;document.getElementById('chkModal').style.display='flex';}
 function closeM(id){document.getElementById(id).style.display='none';}
+
+function waURL(phone,text){
+  const p=phone.replace(/\D/g,''),enc=encodeURIComponent(text);
+  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+    ? 'https://api.whatsapp.com/send?phone='+p+'&text='+enc
+    : 'https://wa.me/'+p+'?text='+enc;
+}
+function openLastWA(){if(lastWA)window.location.href=lastWA;}
 
 async function sendOrder(){
   const phone=document.getElementById('chkPhone').value.trim();
@@ -347,11 +353,15 @@ async function sendOrder(){
   if(!phone||!validPhone(phone))return toast('Numéro WhatsApp invalide','error');
   if(!email||email.indexOf('@')<1)return toast('Email invalide','error');
   btn.disabled=true;btn.textContent='Traitement en cours...';
+
+  const msg='Bonjour '+user.name+',\n\nMerci pour votre commande chez '+((shopInfo&&shopInfo.name)||'PROCURE SHOP')+' !\n\nRappel :\n'+cart.map(i=>'- '+i.name+' × '+i.qty).join('\n')+'\n\nTotal : '+fmt(tot)+' FCFA\n\nVotre reçu PDF vous a été envoyé par email.';
+  lastWA=waURL(phone,msg);
+
   const order={
     ref:'R'+Date.now()+'-'+Math.floor(Math.random()*10000),
     date:formatDate(new Date()),client:user.name,phone,email,
     articles:cart.map(i=>`${i.name} x${i.qty} = ${fmt(i.price*i.qty)} FCFA`).join(', '),
-    total:String(tot),status:'En attente',notes:''
+    total:String(tot),status:'En attente'
   };
   let orderId=null;
   try{
@@ -371,15 +381,12 @@ async function sendOrder(){
       await new Promise(r=>setTimeout(r,800*(i+1)));
     }
   }
-  let msg=`Bonjour ${user.name},\n\nMerci pour votre commande chez ${(shopInfo&&shopInfo.name)||'PROCURE SHOP'} !\n\nRappel :\n`;
-  cart.forEach(i=>msg+=`- ${i.name} × ${i.qty}\n`);
-  msg+=`\nTotal : ${fmt(tot)} FCFA\n\nVotre reçu PDF vous a été envoyé par email.`;
-  window.open(`https://wa.me/${phone.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`,'_blank');
-  closeM('chkModal');
-  document.getElementById('okModal').style.display='flex';
   cart=[];saveCart();updateCart();
   document.getElementById('chkPhone').value='';
   btn.disabled=false;btn.textContent='Confirmer la commande';
+  closeM('chkModal');
+  document.getElementById('okModal').style.display='flex';
+  loadHistory(true);
 }
 function validPhone(p){return['228','221','225','226','223','224','222','229','227','233','234'].some(x=>p.replace(/\D/g,'').startsWith(x));}
 
@@ -388,20 +395,26 @@ async function showSpace(){
   document.getElementById('spacePage').style.display='block';
   document.getElementById('spaceUser').textContent=user.name;
   document.getElementById('pwdCard').style.display=user.isGoogle?'none':'block';
-  await loadHistory();
+  renderHistory();
+  loadHistory(false);
 }
 function hideSpace(){document.getElementById('spacePage').style.display='none';document.getElementById('app').style.display='block';}
-async function loadHistory(){
-  const w=document.getElementById('histWrap');w.innerHTML='<div class="empty">Chargement...</div>';
+async function loadHistory(silent){
+  const w=document.getElementById('histWrap');
+  if(!silent)w.innerHTML='<div class="empty">Chargement...</div>';
   try{
     const r=await fetch(SCRIPT,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'history',name:user.name,email:user.email||''})});
-    const d=await r.json();history=d.ok?d.orders:[];
-    document.getElementById('statOrders').textContent=history.length;
-    const spent=history.filter(o=>o.status==='Livrée').reduce((s,o)=>s+(parseInt(String(o.total).replace(/\D/g,''))||0),0);
-    document.getElementById('statSpent').textContent=fmt(spent)+' FCFA';
-    document.getElementById('statPending').textContent=history.filter(o=>o.status!=='Livrée').length;
-    renderHistory();
-  }catch(e){w.innerHTML='<div class="empty">Erreur</div>';}
+    const d=await r.json();
+    history=d.ok?d.orders:[];historyFor=userKey();
+    updateStats();
+    if(document.getElementById('spacePage').style.display==='block')renderHistory();
+  }catch(e){if(!silent)w.innerHTML='<div class="empty">Erreur de chargement</div>';}
+}
+function updateStats(){
+  document.getElementById('statOrders').textContent=history.length;
+  const spent=history.filter(o=>o.status==='Livrée').reduce((s,o)=>s+(parseInt(String(o.total).replace(/\D/g,''))||0),0);
+  document.getElementById('statSpent').textContent=fmt(spent)+' FCFA';
+  document.getElementById('statPending').textContent=history.filter(o=>o.status!=='Livrée').length;
 }
 function renderHistory(){
   const w=document.getElementById('histWrap'),q=document.getElementById('histSearch').value.toLowerCase();
@@ -435,8 +448,14 @@ function formatDate(d){
   return String(d).split(' ')[0];
 }
 function parseArt(t){return String(t).split(',').map(a=>a.trim()).filter(Boolean).map(a=>{const m=a.match(/^(.*?)\s*x\s*(\d+)\s*=\s*([\d\s\.]+)\s*FCFA$/i);if(m)return{name:m[1].trim(),qty:parseInt(m[2])||1,price:parseInt(m[3].replace(/[^\d]/g,''))||0};return{name:a,qty:1,price:0};});}
-async function genPDFBase64(order){while(typeof window.jspdf==='undefined')await new Promise(r=>setTimeout(r,100));return buildPDF(order).output('datauristring');}
-async function dlPDF(order){if(order.status!=='Livrée')return toast('Reçu disponible après livraison','error');buildPDF(order).save(`Recu_${order.id}.pdf`);}
+function waitJsPDF(ms){return new Promise((res,rej)=>{const t0=Date.now();(function chk(){if(window.jspdf)return res();if(Date.now()-t0>ms)return rej(new Error('timeout'));setTimeout(chk,100);})();});}
+async function genPDFBase64(order){await waitJsPDF(8000);return buildPDF(order).output('datauristring');}
+async function dlPDF(order){
+  if(order.status!=='Livrée')return toast('Reçu disponible après livraison','error');
+  toast('Génération du reçu...');
+  try{await waitJsPDF(8000);buildPDF(order).save('Recu_'+order.id+'.pdf');toast('Reçu téléchargé');}
+  catch(e){toast('Impossible de générer le reçu. Réessayez.','error');}
+}
 function buildPDF(order){
   const {jsPDF}=window.jspdf;
   const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a5'});
