@@ -4,7 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PROCURE SHOP</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛒</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛒</text></svg>">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1e3a8a">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
@@ -24,6 +27,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 .form-group select:focus,.form-group input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(30,58,138,.1)}
 .login-btn{width:100%;padding:1rem;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;border:none;border-radius:10px;font-size:1.05rem;font-weight:600;cursor:pointer;margin-top:.5rem}
 .login-btn:disabled{opacity:.6;cursor:not-allowed}
+.forgot-link{display:block;text-align:center;margin-top:1rem;color:var(--primary);font-size:.9rem;cursor:pointer;text-decoration:underline}
 .divider{display:flex;align-items:center;color:var(--gray);margin:1.5rem 0;font-size:.85rem}
 .divider::before,.divider::after{content:'';flex:1;border-bottom:1px solid #e2e8f0}
 .divider::before{margin-right:12px}.divider::after{margin-left:12px}
@@ -38,8 +42,11 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 .btn-topbar{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.25);padding:.55rem 1rem;border-radius:8px;cursor:pointer;font-size:.9rem}
 .main{max-width:1200px;margin:2rem auto;padding:0 1.5rem}
 .filter-card{background:#fff;padding:1.2rem;border-radius:var(--radius);margin-bottom:1.5rem;box-shadow:var(--shadow);border-top:4px solid var(--primary)}
-.filter-card h3{color:var(--primary-dark);margin-bottom:.8rem;font-size:1.1rem}
-.filter-card select{padding:.7rem 1rem;border:2px solid #e2e8f0;border-radius:8px;font-size:.95rem;max-width:300px;width:100%}
+.search-input{width:100%;padding:.8rem 1rem;border:2px solid #e2e8f0;border-radius:10px;font-size:1rem;margin-bottom:.9rem}
+.search-input:focus{outline:none;border-color:var(--primary)}
+.cat-tabs{display:flex;gap:8px;flex-wrap:wrap}
+.cat-tab{padding:.5rem 1.1rem;border-radius:20px;border:2px solid #e2e8f0;background:#fff;cursor:pointer;font-size:.9rem;font-weight:600;color:var(--gray);transition:.2s}
+.cat-tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
 .articles-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:1.3rem}
 .article-card{background:#fff;border-radius:var(--radius);padding:1.3rem;box-shadow:var(--shadow);transition:.3s;border-left:4px solid var(--primary);position:relative;overflow:hidden}
 .article-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:4px;background:linear-gradient(to right,#10b981,#0ea5e9)}
@@ -48,6 +55,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 .article-name{font-weight:600;font-size:1.1rem;margin-bottom:.6rem}
 .article-price{color:var(--primary-dark);font-weight:700;font-size:1.4rem;margin-bottom:1rem}
 .add-btn{width:100%;padding:.75rem;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600}
+.add-btn:disabled{background:var(--gray);cursor:not-allowed}
+.stock-badge{position:absolute;top:10px;right:10px;background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;padding:.25rem .7rem;border-radius:20px;font-size:.72rem;font-weight:700}
 .fab{position:fixed;bottom:1.5rem;right:1.5rem;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.5rem;cursor:pointer;box-shadow:0 6px 20px rgba(30,58,138,.4);z-index:40;border:none}
 .fab-count{position:absolute;top:-6px;right:-6px;background:#ef4444;color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;border:2px solid #fff}
 .modal{display:none;position:fixed;inset:0;background:rgba(15,23,42,.7);z-index:100;justify-content:center;align-items:center;padding:20px;backdrop-filter:blur(4px)}
@@ -62,7 +71,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 .cart-total{font-size:1.4rem;font-weight:700;color:var(--primary-dark);text-align:right;margin:1.3rem 0;padding-top:1rem;border-top:2px solid #e2e8f0}
 .primary-btn{width:100%;padding:1rem;background:linear-gradient(135deg,var(--success),#0d9488);color:#fff;border:none;border-radius:10px;font-size:1.05rem;font-weight:700;cursor:pointer;margin-top:.6rem}
 .primary-btn:disabled{opacity:.6;cursor:not-allowed}
-.wa-btn{width:100%;padding:1rem;background:#25d366;color:#fff;border:none;border-radius:10px;font-size:1.05rem;font-weight:700;cursor:pointer;display:none}
+.wa-btn{width:100%;padding:1rem;background:#25d366;color:#fff;border:none;border-radius:10px;font-size:1.05rem;font-weight:700;cursor:pointer}
 .small{color:var(--gray);font-size:.8rem;margin-top:4px}
 .space-page{display:none;min-height:100vh;background:var(--light)}
 .space-header{background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;padding:1.5rem}
@@ -114,6 +123,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
     <div id="pwdGroup" style="display:none">
       <div class="form-group"><label>Mot de passe</label><input type="password" id="loginPwd" placeholder="Votre mot de passe" onkeypress="if(event.key==='Enter')doLogin()"></div>
       <button class="login-btn" id="loginBtn" onclick="doLogin()">Se connecter</button>
+      <span class="forgot-link" onclick="openReset()">Mot de passe oublié ?</span>
     </div>
     <div id="googleGroup" style="display:none">
       <div class="divider">Connexion sécurisée</div>
@@ -131,13 +141,17 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
     <div class="topbar-inner">
       <div class="brand"><div class="brand-icon">🛒</div><span>PROCURE SHOP</span></div>
       <div class="topbar-actions">
+        <button class="btn-topbar" id="installBtn" style="display:none" onclick="installApp()">📲 Installer</button>
         <button class="btn-topbar" onclick="showSpace()">👤 Mon Espace</button>
         <button class="btn-topbar" onclick="logout()">🚪 Déconnexion</button>
       </div>
     </div>
   </div>
   <div class="main">
-    <div class="filter-card"><h3>Filtrer par catégorie</h3><select id="catFilter" onchange="filterArt()"><option value="all">Toutes les catégories</option></select></div>
+    <div class="filter-card">
+      <input type="text" class="search-input" id="searchInput" placeholder="🔍 Rechercher un article..." oninput="renderCurrent()">
+      <div class="cat-tabs" id="catTabs"></div>
+    </div>
     <div class="articles-grid" id="artGrid"><div class="empty">Chargement des articles...</div></div>
   </div>
   <button class="fab" onclick="openCart()">🛒 <span class="fab-count" id="cartCount">0</span></button>
@@ -205,8 +219,26 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
     <div style="font-size:4rem;color:var(--success);margin-bottom:1rem">✓</div>
     <h2 style="padding-right:0">Commande confirmée !</h2>
     <p style="color:var(--gray);margin:1rem 0">Votre reçu PDF a été envoyé par email.<br>Cliquez ci-dessous pour recevoir le récapitulatif WhatsApp.</p>
-    <button class="wa-btn" id="waBtn" style="display:block" onclick="openLastWA()">📲 Ouvrir WhatsApp</button>
+    <button class="wa-btn" onclick="openLastWA()">📲 Ouvrir WhatsApp</button>
     <button class="primary-btn" onclick="closeM('okModal')">Continuer mes achats</button>
+  </div>
+</div>
+
+<div id="resetModal" class="modal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeM('resetModal')">×</button>
+    <h2>🔑 Mot de passe oublié</h2>
+    <div id="resetStep1">
+      <div class="form-group"><label>Votre nom</label><select id="resetName"><option value="">-- Sélectionnez --</option></select></div>
+      <button class="primary-btn" onclick="sendResetCode()">📧 Envoyer le code par email</button>
+    </div>
+    <div id="resetStep2" style="display:none">
+      <p class="small" style="margin-bottom:.8rem">Un code à 6 chiffres a été envoyé à votre email enregistré.</p>
+      <div class="form-group"><label>Code reçu</label><input type="text" id="resetCode" placeholder="123456"></div>
+      <div class="form-group"><label>Nouveau mot de passe</label><input type="password" id="resetPwd"></div>
+      <div class="form-group"><label>Confirmer le mot de passe</label><input type="password" id="resetPwd2"></div>
+      <button class="primary-btn" onclick="doReset()">💾 Changer le mot de passe</button>
+    </div>
   </div>
 </div>
 
@@ -217,19 +249,27 @@ const SCRIPT="https://script.google.com/macros/s/AKfycbwGGpNFBIBGrf6bPTUbZP7IzGD
 const SHEET="https://docs.google.com/spreadsheets/d/e/2PACX-1vRO9Ylv3GrLJI6OtTQu5sC9MY2-2IdZ-G-uxltTBbVnQ9L8ztg_LGtK-HSrRbnIeYlu21j29-FhF9Cw/pub?gid=0&single=true&output=csv";
 const SESSION_KEY='procure_session';
 
-let articles=[],cart=[],cats=new Set(),user=null,shopInfo=null,history=[],historyFor=null,lastWA='';
+let articles=[],cart=[],cats=new Set(),user=null,shopInfo=null,history=[],lastWA='',activeCat='all',deferredPrompt=null;
 
 function userKey(){return user?((user.email||user.name)||'').toLowerCase():'';}
 function cartKey(){return 'cart_'+(userKey()||'anon');}
 function loadCart(){try{cart=JSON.parse(localStorage.getItem(cartKey()))||[];}catch(e){cart=[];}}
 function saveCart(){localStorage.setItem(cartKey(),JSON.stringify(cart));}
-function setSession(c){user=c;localStorage.setItem(SESSION_KEY,JSON.stringify(c));history=[];historyFor=null;loadCart();}
+function setSession(c){user=c;localStorage.setItem(SESSION_KEY,JSON.stringify(c));history=[];loadCart();}
 
 document.addEventListener('DOMContentLoaded',async()=>{
   try{user=JSON.parse(localStorage.getItem(SESSION_KEY)||'null');}catch(e){user=null;}
   await preloadNames();
   if(user){loadCart();await enterApp();loadHistory(true);}
+  if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{});});}
+  window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.getElementById('installBtn').style.display='block';});
 });
+
+function installApp(){
+  if(!deferredPrompt)return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(()=>{deferredPrompt=null;document.getElementById('installBtn').style.display='none';});
+}
 
 async function preloadNames(){
   const cache=localStorage.getItem('clientNames'),t=parseInt(localStorage.getItem('clientNamesTime')||'0');
@@ -244,10 +284,11 @@ async function preloadNames(){
   if(cache)populateNames(JSON.parse(cache));
 }
 function populateNames(names){
-  const s=document.getElementById('loginName'),a=s.querySelector('option[value="__autre__"]');
-  s.innerHTML='<option value="">-- Sélectionnez --</option>';
-  names.forEach(n=>{const o=document.createElement('option');o.value=n;o.textContent=n;s.appendChild(o);});
-  s.appendChild(a);
+  ['loginName','resetName'].forEach(id=>{
+    const s=document.getElementById(id);
+    const extra=id==='loginName'?'<option value="__autre__">🔐 Autre (Connexion Google)</option>':'';
+    s.innerHTML='<option value="">-- Sélectionnez --</option>'+names.map(n=>`<option value="${n}">${n}</option>`).join('')+extra;
+  });
 }
 function toggleLogin(){
   const v=document.getElementById('loginName').value;
@@ -289,7 +330,7 @@ async function enterApp(){
   updateCart();
 }
 async function loadShopInfo(){try{const r=await fetch(SCRIPT+'?action=shopInfo',{cache:'no-store'});const d=await r.json();if(d.ok)shopInfo=d.info;}catch(e){}}
-function logout(){localStorage.removeItem(SESSION_KEY);user=null;history=[];historyFor=null;location.reload();}
+function logout(){localStorage.removeItem(SESSION_KEY);user=null;history=[];location.reload();}
 
 async function loadArticles(){
   const g=document.getElementById('artGrid');
@@ -305,25 +346,54 @@ function parseCSV(t){
   const cC=h.findIndex(x=>x.includes('categorie')||x.includes('catégorie'));
   const nC=h.findIndex(x=>x.includes('article')||x.includes('produit')||x.includes('nom'));
   const pC=h.findIndex(x=>x.includes('prix'));
+  const sC=h.findIndex(x=>x.includes('stock'));
   if(cC<0||nC<0||pC<0)return;
   articles=[];cats.clear();
   for(let i=1;i<lines.length;i++){
     if(!lines[i].trim())continue;
     const v=pLine(lines[i]);if(v.length<3)continue;
     const cat=(v[cC]||'').trim()||'Divers',name=(v[nC]||'').trim(),price=parseInt((v[pC]||'').replace(/\D/g,''))||0;
-    if(name&&price>0){articles.push({id:i,category:cat,name,price});cats.add(cat);}
+    let stock='';
+    if(sC>-1){const raw=(v[sC]||'').trim();if(raw!=='')stock=parseInt(raw.replace(/\D/g,''))||0;}
+    if(name&&price>0){articles.push({id:i,category:cat,name,price,stock});cats.add(cat);}
   }
-  renderCats();renderArt(articles);
+  renderCats();renderCurrent();
 }
 function pLine(l){const v=[];let c='',q=false;for(let i=0;i<l.length;i++){if(l[i]==='"')q=!q;else if(l[i]===','&&!q){v.push(c.trim());c='';}else c+=l[i];}v.push(c.trim());return v;}
-function renderCats(){const s=document.getElementById('catFilter');while(s.options.length>1)s.remove(1);[...cats].sort().forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;s.appendChild(o);});}
+function renderCats(){
+  const t=document.getElementById('catTabs');
+  t.innerHTML='<button class="cat-tab'+(activeCat==='all'?' active':'')+'" onclick="setCat(\'all\')">Toutes</button>'+
+    [...cats].sort().map(c=>`<button class="cat-tab${activeCat===c?' active':''}" onclick="setCat('${c.replace(/'/g,"\\'")}')">${c}</button>`).join('');
+}
+function setCat(c){activeCat=c;renderCats();renderCurrent();}
+function renderCurrent(){
+  const q=(document.getElementById('searchInput').value||'').toLowerCase();
+  let list=articles;
+  if(activeCat!=='all')list=list.filter(a=>a.category===activeCat);
+  if(q)list=list.filter(a=>a.name.toLowerCase().includes(q)||a.category.toLowerCase().includes(q));
+  renderArt(list);
+}
 function renderArt(list){
   const g=document.getElementById('artGrid');
-  if(!list.length){g.innerHTML='<div class="empty">Aucun article</div>';return;}
-  g.innerHTML=list.map(a=>`<div class="article-card"><div class="article-cat">${a.category}</div><div class="article-name">${a.name}</div><div class="article-price">${fmt(a.price)} FCFA</div><button class="add-btn" onclick="addCart(${a.id})">Ajouter au panier</button></div>`).join('');
+  if(!list.length){g.innerHTML='<div class="empty">Aucun article trouvé</div>';return;}
+  g.innerHTML=list.map(a=>{
+    const rupture=(a.stock!==''&&a.stock<=0);
+    return `<div class="article-card">
+      ${rupture?'<div class="stock-badge">Rupture de stock</div>':''}
+      <div class="article-cat">${a.category}</div>
+      <div class="article-name">${a.name}</div>
+      <div class="article-price">${fmt(a.price)} FCFA</div>
+      <button class="add-btn" ${rupture?'disabled':''} onclick="addCart(${a.id})">${rupture?'Indisponible':'Ajouter au panier'}</button>
+    </div>`;
+  }).join('');
 }
-function filterArt(){const c=document.getElementById('catFilter').value;renderArt(c==='all'?articles:articles.filter(a=>a.category===c));}
-function addCart(id){const a=articles.find(x=>x.id===id);if(!a)return;const e=cart.find(x=>x.id===id);if(e)e.qty++;else cart.push({...a,qty:1});saveCart();updateCart();toast('Article ajouté');}
+function addCart(id){
+  const a=articles.find(x=>x.id===id);if(!a)return;
+  if(a.stock!==''&&a.stock<=0)return toast('Article en rupture de stock','error');
+  const e=cart.find(x=>x.id===id);
+  if(e)e.qty++;else cart.push({...a,qty:1});
+  saveCart();updateCart();toast('Article ajouté');
+}
 function updateCart(){
   document.getElementById('cartCount').textContent=cart.reduce((s,i)=>s+i.qty,0);
   const tot=cart.reduce((s,i)=>s+i.price*i.qty,0);
@@ -382,7 +452,8 @@ async function sendOrder(){
       await new Promise(r=>setTimeout(r,800*(i+1)));
     }
   }
-  cart=[];saveCart();updateCart();
+  cart.forEach(i=>{const a=articles.find(x=>x.id===i.id);if(a&&a.stock!=='')a.stock=Math.max(0,a.stock-i.qty);});
+  cart=[];saveCart();updateCart();renderCurrent();
   document.getElementById('chkPhone').value='';
   btn.disabled=false;btn.textContent='Confirmer la commande';
   closeM('chkModal');
@@ -406,7 +477,7 @@ async function loadHistory(silent){
   try{
     const r=await fetch(SCRIPT,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'history',name:user.name,email:user.email||''})});
     const d=await r.json();
-    history=d.ok?d.orders:[];historyFor=userKey();
+    history=d.ok?d.orders:[];
     updateStats();
     if(document.getElementById('spacePage').style.display==='block')renderHistory();
   }catch(e){if(!silent)w.innerHTML='<div class="empty">Erreur de chargement</div>';}
@@ -437,6 +508,38 @@ async function changePwd(){
     const r=await fetch(SCRIPT,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'changePassword',name:user.name,oldPassword:o,newPassword:n})});
     const d=await r.json();
     if(d.ok){toast('Mot de passe modifié');document.getElementById('oldPwd').value='';document.getElementById('newPwd').value='';document.getElementById('confirmPwd').value='';document.getElementById('pwdBar').className='pwd-bar';}
+    else toast(d.error||'Erreur','error');
+  }catch(e){toast('Erreur réseau','error');}
+}
+
+// === MOT DE PASSE OUBLIÉ ===
+function openReset(){
+  document.getElementById('resetStep1').style.display='block';
+  document.getElementById('resetStep2').style.display='none';
+  document.getElementById('resetModal').style.display='flex';
+}
+async function sendResetCode(){
+  const name=document.getElementById('resetName').value;
+  if(!name)return toast('Sélectionnez votre nom','error');
+  try{
+    const r=await fetch(SCRIPT,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'requestReset',name})});
+    const d=await r.json();
+    if(d.ok){document.getElementById('resetStep1').style.display='none';document.getElementById('resetStep2').style.display='block';toast('Code envoyé par email');}
+    else toast(d.error||'Erreur','error');
+  }catch(e){toast('Erreur réseau','error');}
+}
+async function doReset(){
+  const name=document.getElementById('resetName').value;
+  const code=document.getElementById('resetCode').value.trim();
+  const p1=document.getElementById('resetPwd').value;
+  const p2=document.getElementById('resetPwd2').value;
+  if(!code||!p1||!p2)return toast('Remplissez tous les champs','error');
+  if(p1.length<4)return toast('Minimum 4 caractères','error');
+  if(p1!==p2)return toast('Les mots de passe ne correspondent pas','error');
+  try{
+    const r=await fetch(SCRIPT,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'resetPassword',name,code,newPassword:p1})});
+    const d=await r.json();
+    if(d.ok){toast('Mot de passe modifié. Connectez-vous.');closeM('resetModal');}
     else toast(d.error||'Erreur','error');
   }catch(e){toast('Erreur réseau','error');}
 }
