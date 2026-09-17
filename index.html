@@ -57,6 +57,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:linear-gradient(135d
 .add-btn{width:100%;padding:.75rem;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600}
 .add-btn:disabled{background:var(--gray);cursor:not-allowed}
 .stock-badge{position:absolute;top:10px;right:10px;background:#fef2f2;color:#b91c1c;border:1px solid #fecaca;padding:.25rem .7rem;border-radius:20px;font-size:.72rem;font-weight:700}
+.stock-badge.order{background:#eff6ff;color:#1e40af;border:1px solid #bfdbfe}
 .fab{position:fixed;bottom:1.5rem;right:1.5rem;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.5rem;cursor:pointer;box-shadow:0 6px 20px rgba(30,58,138,.4);z-index:40;border:none}
 .fab-count{position:absolute;top:-6px;right:-6px;background:#ef4444;color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;border:2px solid #fff}
 .modal{display:none;position:fixed;inset:0;background:rgba(15,23,42,.7);z-index:100;justify-content:center;align-items:center;padding:20px;backdrop-filter:blur(4px)}
@@ -353,9 +354,15 @@ function parseCSV(t){
     if(!lines[i].trim())continue;
     const v=pLine(lines[i]);if(v.length<3)continue;
     const cat=(v[cC]||'').trim()||'Divers',name=(v[nC]||'').trim(),price=parseInt((v[pC]||'').replace(/\D/g,''))||0;
-    let stock='';
-    if(sC>-1){const raw=(v[sC]||'').trim();if(raw!=='')stock=parseInt(raw.replace(/\D/g,''))||0;}
-    if(name&&price>0){articles.push({id:i,category:cat,name,price,stock});cats.add(cat);}
+    let stock='';let surCommande=false;
+    if(sC>-1){
+      const raw=(v[sC]||'').trim();
+      if(raw!==''){
+        const num=parseInt(raw.replace(/\D/g,''),10);
+        if(isNaN(num)){surCommande=true;}else{stock=num;}
+      }
+    }
+    if(name&&price>0){articles.push({id:i,category:cat,name,price,stock,surCommande});cats.add(cat);}
   }
   renderCats();renderCurrent();
 }
@@ -377,22 +384,24 @@ function renderArt(list){
   const g=document.getElementById('artGrid');
   if(!list.length){g.innerHTML='<div class="empty">Aucun article trouvé</div>';return;}
   g.innerHTML=list.map(a=>{
-    const rupture=(a.stock!==''&&a.stock<=0);
+    const rupture=(!a.surCommande&&a.stock!==''&&a.stock<=0);
+    const badge=a.surCommande?'<div class="stock-badge order">Sur commande</div>':(rupture?'<div class="stock-badge">Rupture de stock</div>':'');
+    const label=rupture?'Indisponible':(a.surCommande?'Commander':'Ajouter au panier');
     return `<div class="article-card">
-      ${rupture?'<div class="stock-badge">Rupture de stock</div>':''}
+      ${badge}
       <div class="article-cat">${a.category}</div>
       <div class="article-name">${a.name}</div>
       <div class="article-price">${fmt(a.price)} FCFA</div>
-      <button class="add-btn" ${rupture?'disabled':''} onclick="addCart(${a.id})">${rupture?'Indisponible':'Ajouter au panier'}</button>
+      <button class="add-btn" ${rupture?'disabled':''} onclick="addCart(${a.id})">${label}</button>
     </div>`;
   }).join('');
 }
 function addCart(id){
   const a=articles.find(x=>x.id===id);if(!a)return;
-  if(a.stock!==''&&a.stock<=0)return toast('Article en rupture de stock','error');
+  if(!a.surCommande&&a.stock!==''&&a.stock<=0)return toast('Article en rupture de stock','error');
   const e=cart.find(x=>x.id===id);
   if(e)e.qty++;else cart.push({...a,qty:1});
-  saveCart();updateCart();toast('Article ajouté');
+  saveCart();updateCart();toast(a.surCommande?'Article commandé pour vous':'Article ajouté');
 }
 function updateCart(){
   document.getElementById('cartCount').textContent=cart.reduce((s,i)=>s+i.qty,0);
@@ -401,7 +410,7 @@ function updateCart(){
   document.getElementById('chkTot').textContent=fmt(tot);
   const it=document.getElementById('cartItems');
   if(!cart.length){it.innerHTML='<p class="empty">Votre panier est vide</p>';return;}
-  it.innerHTML=cart.map(i=>`<div class="cart-item"><div class="cart-info"><div class="cart-name">${i.name}</div><div class="cart-price">${fmt(i.price)} × ${i.qty} = ${fmt(i.price*i.qty)} FCFA</div></div><div class="qty-ctrl"><button class="qty-btn" onclick="chgQty(${i.id},-1)">−</button><span class="qty-val">${i.qty}</span><button class="qty-btn" onclick="chgQty(${i.id},1)">+</button></div></div>`).join('');
+  it.innerHTML=cart.map(i=>`<div class="cart-item"><div class="cart-info"><div class="cart-name">${i.name}${i.surCommande?' <span class="badge progress">Sur commande</span>':''}</div><div class="cart-price">${fmt(i.price)} × ${i.qty} = ${fmt(i.price*i.qty)} FCFA</div></div><div class="qty-ctrl"><button class="qty-btn" onclick="chgQty(${i.id},-1)">−</button><span class="qty-val">${i.qty}</span><button class="qty-btn" onclick="chgQty(${i.id},1)">+</button></div></div>`).join('');
 }
 function chgQty(id,d){const it=cart.find(x=>x.id===id);if(!it)return;if(d===-1&&it.qty<=1){if(confirm('Retirer '+it.name+' ?'))cart=cart.filter(x=>x.id!==id);}else it.qty+=d;saveCart();updateCart();}
 function openCart(){document.getElementById('cartModal').style.display='flex';}
@@ -425,7 +434,7 @@ async function sendOrder(){
   if(!email||email.indexOf('@')<1)return toast('Email invalide','error');
   btn.disabled=true;btn.textContent='Traitement en cours...';
 
-  const msg='Bonjour '+user.name+',\n\nMerci pour votre commande chez '+((shopInfo&&shopInfo.name)||'PROCURE SHOP')+' !\n\nRappel :\n'+cart.map(i=>'- '+i.name+' × '+i.qty).join('\n')+'\n\nTotal : '+fmt(tot)+' FCFA\n\nVotre reçu PDF vous a été envoyé par email.';
+  const msg='Bonjour '+user.name+',\n\nMerci pour votre commande chez '+((shopInfo&&shopInfo.name)||'PROCURE SHOP')+' !\n\nRappel :\n'+cart.map(i=>'- '+i.name+' × '+i.qty+(i.surCommande?' (sur commande)':'')).join('\n')+'\n\nTotal : '+fmt(tot)+' FCFA\n\nVotre reçu PDF vous a été envoyé par email.';
   lastWA=waURL(phone,msg);
 
   const order={
@@ -452,7 +461,7 @@ async function sendOrder(){
       await new Promise(r=>setTimeout(r,800*(i+1)));
     }
   }
-  cart.forEach(i=>{const a=articles.find(x=>x.id===i.id);if(a&&a.stock!=='')a.stock=Math.max(0,a.stock-i.qty);});
+  cart.forEach(i=>{const a=articles.find(x=>x.id===i.id);if(a&&!a.surCommande&&a.stock!=='')a.stock=Math.max(0,a.stock-i.qty);});
   cart=[];saveCart();updateCart();renderCurrent();
   document.getElementById('chkPhone').value='';
   btn.disabled=false;btn.textContent='Confirmer la commande';
@@ -512,7 +521,6 @@ async function changePwd(){
   }catch(e){toast('Erreur réseau','error');}
 }
 
-// === MOT DE PASSE OUBLIÉ ===
 function openReset(){
   document.getElementById('resetStep1').style.display='block';
   document.getElementById('resetStep2').style.display='none';
